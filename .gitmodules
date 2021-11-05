@@ -1,0 +1,3 @@
+[submodule "hagl"]
+	path = hagl
+	url = https://github.com/tuupola/hagl.git
