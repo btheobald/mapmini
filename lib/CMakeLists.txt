@@ -18,3 +18,4 @@ target_include_directories(hagl PUBLIC ${CMAKE_CURRENT_LIST_DIR}/hagl/include)
 target_link_libraries(hagl PUBLIC hagl_hal)
 
 add_subdirectory(hagl_sdl2)
+add_subdirectory(fileio_posix)

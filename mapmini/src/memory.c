@@ -1,14 +1,15 @@
 #include "memory.h"
 #include <stdio.h>
 
-#define ARENA_SIZE 100000
-static uint32_t current_pos;
-static uint8_t arena[ARENA_SIZE];
+uint32_t current_pos;
+uint32_t * arena;
+uint32_t arena_size;
 
-void init_arena(uint16_t size) {
+uint32_t * init_arena(uint32_t size) {
     current_pos = 0;
-    //arena_size = size;
-    //arena = malloc(size);
+    arena = malloc(size);
+    arena_size = size;
+    return arena;
 }
 
 void reset_arena() {
@@ -16,11 +17,12 @@ void reset_arena() {
 }
 
 void free_arena() {
-    printf("Arena %d/%d\n\r", current_pos, ARENA_SIZE);
-    //free(arena);
+    printf("Arena %d/%d\n\r", current_pos, arena_size);
+    free(arena);
 }
 
-uint32_t* mark_bytes(uint16_t size) {
+void* mark_bytes(uint16_t size) {
     current_pos += size;
-    return (void *)(arena+current_pos);
+    printf("Arena %d/%d\n\r", current_pos, arena_size);
+    return malloc(size); //(void *)(arena+current_pos);
 }

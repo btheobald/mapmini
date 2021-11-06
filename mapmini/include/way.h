@@ -31,8 +31,7 @@ typedef struct _way_prop {
     way_data  * data;
 } way_prop;
 
-uint32_t get_way(way_prop * wp, fb_tracker * fbt);
-void free_way(way_prop * wp);
+uint32_t get_way(way_prop * wp, fb_handler * fbh);
 
 #define EARTH_R_M 6378137
 #define SCALE 8

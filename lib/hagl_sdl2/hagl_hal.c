@@ -89,8 +89,8 @@ bitmap_t *hagl_hal_init(void)
         "HAGL SDL2",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
-        DISPLAY_WIDTH,
-        DISPLAY_HEIGHT,
+        DISPLAY_WIDTH*DISPLAY_SCALE,
+        DISPLAY_HEIGHT*DISPLAY_SCALE,
         0
     );
 
@@ -103,6 +103,8 @@ bitmap_t *hagl_hal_init(void)
         -1,
         SDL_RENDERER_ACCELERATED | SDL_RENDERER_PRESENTVSYNC
     );
+
+    SDL_RenderSetScale(renderer, DISPLAY_SCALE, DISPLAY_SCALE);
 
     if (NULL == renderer) {
         printf("Could not create renderer: %s\n", SDL_GetError());

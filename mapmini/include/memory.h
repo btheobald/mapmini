@@ -4,10 +4,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-void init_arena(uint16_t size);
+#define ARENA_SIZE 100000
+
+uint32_t * init_arena(uint32_t size);
 void reset_arena();
 void free_arena();
 
-uint32_t* mark_bytes(uint16_t size);
+void* mark_bytes(uint16_t size);
 
 #endif

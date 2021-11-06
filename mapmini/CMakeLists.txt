@@ -5,4 +5,4 @@ set_target_properties(mapmini PROPERTIES PUBLIC_HEADER include/map.h)
 
 add_subdirectory(src)
 
-target_link_libraries(mapmini PRIVATE m)
+target_link_libraries(mapmini PRIVATE m fileio_posix)
