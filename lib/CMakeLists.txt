@@ -1,3 +1,20 @@
-option(PICO_SDK "Enabling hagl git cmake" 1)
-add_subdirectory(hagl)
+# Bypassing git CMakeLists to statically link hagl
+    
+add_library(hagl STATIC)
+
+target_sources(hagl PRIVATE
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/bitmap.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/clip.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/fontx.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/hagl.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/hsl.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/rgb565.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/rgb888.c
+    ${CMAKE_CURRENT_LIST_DIR}/hagl/src/tjpgd.c
+)
+
+target_include_directories(hagl PUBLIC ${CMAKE_CURRENT_LIST_DIR}/hagl/include)
+
+target_link_libraries(hagl PUBLIC hagl_hal)
+
 add_subdirectory(hagl_sdl2)

@@ -37,6 +37,8 @@ SPDX-License-Identifier: MIT-0
 #include "fps.h"
 #include "font6x9.h"
 
+#include "map.h"
+
 uint32_t flush_callback(uint32_t interval, void *param)
 {
     hagl_flush();
@@ -260,6 +262,8 @@ int main()
     printf("Press ESC to quit.\n\n");
 
     Uint32 start = SDL_GetTicks();
+
+    load_map("scotland_roads.map");
 
     while (!quit) {
 

@@ -1,1 +1,1 @@
-int render_map(char* filename);
+int load_map(char* filename);

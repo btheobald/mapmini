@@ -4,10 +4,9 @@
 #include <math.h>
 
 #include "map.h"
-#include "file.h"
-#include "graphics.h"
+#include "parse.h"
 #include "way.h"
-#include "mem.h"
+#include "memory.h"
 //#include "ff.h"
 
 #define MAPSFORGE_MAGIC_STRING "mapsforge binary OSM"
@@ -53,7 +52,7 @@ int lat2tiley(double lat, int z) {
 	return (int)(floor((1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << z))); 
 }
 
-int render_map(char* filename) {
+int load_map(char* filename) {
     FILE mf;
 
     uint8_t buffer[FILE_READ_BUFFER_SIZE];
@@ -63,9 +62,6 @@ int render_map(char* filename) {
     if(1){//f_open(&mf, filename, FA_READ) != FR_OK) {
         printf("Failed\n\r");
     }
-
-    g_init();
-    g_fill(255);
 
     // Copy Sizable Buffer for header
     fb_tracker fbt;
@@ -253,7 +249,7 @@ int render_map(char* filename) {
     for(int w = 0; w < ways_to_draw; w++) {
         way_size += get_way(&testway[w],&fbt);
         //printf("%d ", w);
-        g_draw_way(&testway[w], 0, testway[w].tag_ids[0]);
+        //g_draw_way(&testway[w], 0, testway[w].tag_ids[0]);
         //printf("Drawn\n\r", w);
     }
 

@@ -1,4 +1,4 @@
-#include "mem.h"
+#include "memory.h"
 #include <stdio.h>
 
 #define ARENA_SIZE 100000

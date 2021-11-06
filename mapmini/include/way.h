@@ -2,7 +2,7 @@
 #define WAY_GUARD
 
 #include <stdint.h>
-#include "file.h"
+#include "parse.h"
 #include <math.h>
 
 typedef struct _way_coord { int16_t xy[2]; } way_coord;

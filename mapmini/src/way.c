@@ -1,5 +1,5 @@
 #include "way.h"
-#include "mem.h"
+#include "memory.h"
 
 uint32_t get_way(way_prop * wp, fb_tracker * fbt) {
     uint32_t ds = get_vbe_uint(fbt);
@@ -21,7 +21,7 @@ uint32_t get_way(way_prop * wp, fb_tracker * fbt) {
     //printf("Layer: %d -  ", wp->osm_layer);
     wp->n_tags = (special & 0x0f);
 
-    wp->tag_ids = mark_bytes(sizeof(uint32_t)*wp->n_tags);
+    wp->tag_ids = (uint16_t*)mark_bytes(sizeof(uint32_t)*wp->n_tags);
     //printf("Tags: %d -  ", wp->n_tags);
 
     for(int tag = 0; tag < wp->n_tags; tag++) {
@@ -33,19 +33,19 @@ uint32_t get_way(way_prop * wp, fb_tracker * fbt) {
 
     if(wp->flags & 0x80) { // Way Name
         uint8_t len = get_uint8(fbt);
-        wp->name = mark_bytes(sizeof(char)*len+1);
+        wp->name = (char*)mark_bytes(sizeof(char)*len+1);
         get_string(fbt, wp->name, len);
         //printf("Name: %s, ", wp->name);
     }
     if(wp->flags & 0x40) { // House Number
         uint8_t len = get_uint8(fbt);
-        wp->house = mark_bytes(sizeof(char)*len+1);
+        wp->house = (char*)mark_bytes(sizeof(char)*len+1);
         get_string(fbt, wp->house, len);
         //printf("House: %s, ", wp->house);
     }
     if(wp->flags & 0x20) { // Reference
         uint8_t len = get_uint8(fbt);
-        wp->reference = mark_bytes(sizeof(char)*len+1);
+        wp->reference = (char*)mark_bytes(sizeof(char)*len+1);
         get_string(fbt, wp->reference, len);
         //printf("Ref: %s, ", wp->reference);
     }
@@ -59,19 +59,19 @@ uint32_t get_way(way_prop * wp, fb_tracker * fbt) {
     } else {
         wp->blocks = 1;
     }
-    wp->data = mark_bytes(sizeof(way_data)*wp->blocks);
+    wp->data = (way_data*)mark_bytes(sizeof(way_data)*wp->blocks);
 
     //printf("%d Blocks, ", wp->blocks);
 
     for(int wdb = 0; wdb < wp->blocks; wdb++) {
         wp->data[wdb].polygons = (uint32_t)get_vbe_uint(fbt);
         //printf("%d Poly, ", wp->data[wdb].polygons);
-        wp->data[wdb].block = mark_bytes(sizeof(way_coord_blk)*wp->data[wdb].polygons);
+        wp->data[wdb].block = (way_coord_blk*)mark_bytes(sizeof(way_coord_blk)*wp->data[wdb].polygons);
         uint32_t last_lon_md, last_lat_md;
         for(int wcb = 0; wcb < wp->data[wdb].polygons; wcb++) {
             wp->data[wdb].block[wcb].nodes = (uint32_t)get_vbe_uint(fbt);
             //printf("%d Nodes, ", wp->data[wdb].block[wcb].nodes);
-            wp->data[wdb].block[wcb].coords = mark_bytes(sizeof(way_coord)*wp->data[wdb].block[wcb].nodes);
+            wp->data[wdb].block[wcb].coords = (way_coord*)mark_bytes(sizeof(way_coord)*wp->data[wdb].block[wcb].nodes);
             
             // Get Origin
             last_lon_md = get_vbe_int(fbt);
