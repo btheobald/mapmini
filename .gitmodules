@@ -1,3 +1,6 @@
 [submodule "hagl"]
 	path = lib/hagl
 	url = https://github.com/tuupola/hagl.git
+[submodule "lib/arena"]
+	path = lib/arena
+	url = https://github.com/thejefflarson/arena.git

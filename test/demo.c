@@ -39,192 +39,6 @@ SPDX-License-Identifier: MIT-0
 
 #include "map.h"
 
-uint32_t flush_callback(uint32_t interval, void *param)
-{
-    hagl_flush();
-    return interval;
-}
-
-uint32_t pps_callback(uint32_t interval, void *param)
-{
-    printf("Primitives per second: %f\n", *(float *)param);
-    return interval;
-}
-
-void polygon_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x3 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y3 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x4 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y4 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-    int16_t vertices[10] = {x0, y0, x1, y1, x2, y2, x3, y3, x4, y4};
-
-    hagl_draw_polygon(5, vertices, colour);
-}
-
-void fill_polygon_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x3 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y3 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x4 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y4 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-    int16_t vertices[10] = {x0, y0, x1, y1, x2, y2, x3, y3, x4, y4};
-
-    hagl_fill_polygon(5, vertices, colour);
-}
-
-void circle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t r = (rand() % 40);
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_draw_circle(x0, y0, r, colour);
-}
-
-void fill_circle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t r = (rand() % 40);
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_fill_circle(x0, y0, r, colour);
-}
-
-void line_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_draw_line(x0, y0, x1, y1, colour);
-}
-
-void rectangle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x3 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y3 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x4 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y4 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_draw_rectangle(x0, y0, x1, y1, colour);
-}
-
-void fill_rectangle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x3 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y3 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x4 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y4 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_fill_rectangle(x0, y0, x1, y1, colour);
-}
-
-void put_character_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-    char ascii = rand() % 127;
-
-    hagl_put_char(ascii, x0, y0, colour, font6x9);
-}
-
-void put_text_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_put_text(L"YO! MTV raps.", x0, y0, colour, font6x9);
-}
-
-void put_pixel_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_put_pixel(x0, y0, colour);
-
-}
-
-void triangle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_draw_triangle(x0, y0, x1, y1, x2, y2, colour);
-}
-
-void fill_triangle_demo()
-{
-    int16_t x0 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y0 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x1 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y1 = (rand() % 280) - 20; /* -20 ... 260 */
-    int16_t x2 = (rand() % 360) - 20; /* -20 ... 340 */
-    int16_t y2 = (rand() % 280) - 20; /* -20 ... 260 */
-    uint16_t colour = rand() % 0xffff;
-
-    hagl_fill_triangle(x0, y0, x1, y1, x2, y2, colour);
-}
-
-void scale_blit_demo()
-{
-}
-
-void rgb_demo()
-{
-    uint16_t red = rgb565(255, 0, 0);
-    uint16_t green = rgb565(0, 255, 0);
-    uint16_t blue = rgb565(0, 0, 255);
-    int16_t x0 = 0;
-    int16_t x1 = DISPLAY_WIDTH / 3;
-    int16_t x2 = 2 * x1;
-
-    hagl_fill_rectangle(x0, 0, x1 - 1, DISPLAY_HEIGHT, red);
-    hagl_fill_rectangle(x1, 0, x2 - 1, DISPLAY_HEIGHT, green);
-    hagl_fill_rectangle(x2, 0, DISPLAY_WIDTH, DISPLAY_HEIGHT, blue);
-}
-
 int main()
 {
     hagl_init();
@@ -236,63 +50,64 @@ int main()
     uint16_t current_demo = 0;
     float current_pps = 0.0; /* primitives per secod */
 
-    SDL_TimerID flush_id = SDL_AddTimer(flush_delay, flush_callback, NULL);
-    SDL_TimerID pps_id = SDL_AddTimer(pps_delay, pps_callback, &current_pps);
-
     bool quit = false;
     SDL_Event event;
-
-    void (*demo[13]) ();
-    demo[0] = rgb_demo;
-    demo[1] = put_character_demo;
-    demo[2] = put_pixel_demo;
-    demo[3] = fill_triangle_demo;
-    demo[4] = triangle_demo;
-    demo[5] = fill_rectangle_demo;
-    demo[6] = rectangle_demo;
-    demo[7] = line_demo;
-    demo[8] = circle_demo;
-    demo[9] = fill_circle_demo;
-    demo[10] = polygon_demo;
-    demo[11] = fill_polygon_demo;
-    demo[12] = put_text_demo;
 
     printf("\n");
     printf("Press any key to change demo.\n");
     printf("Press ESC to quit.\n\n");
 
-    Uint32 start = SDL_GetTicks();
+    hagl_clear_screen();
+    uint32_t start = SDL_GetTicks();
 
-    load_map("scotland_roads.map");
+    uint32_t x_in = 8044;
+    uint32_t y_in = 5108;
+    uint32_t z_in = 14;
+
+    load_map("scotland_roads.map", x_in, y_in, z_in);
 
     while (!quit) {
 
-        (*demo[current_demo])();
         current_pps = fps();
-        //SDL_Delay(100);
+
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 quit = true;
             }
             if (event.type == SDL_KEYDOWN) {
-                if (SDLK_ESCAPE ==event.key.keysym.sym) {
+                if (event.key.keysym.sym == SDLK_ESCAPE) {
                     quit = true;
+                } else if (event.key.keysym.sym == SDLK_LEFT) {
+                    x_in--;
+                    hagl_clear_screen();
+                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                } else if (event.key.keysym.sym == SDLK_RIGHT) {
+                    x_in++;
+                    hagl_clear_screen();
+                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                } else if (event.key.keysym.sym == SDLK_UP) {
+                    y_in--;
+                    hagl_clear_screen();
+                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                } else if (event.key.keysym.sym == SDLK_DOWN) {
+                    y_in++;
+                    hagl_clear_screen();
+                    load_map("scotland_roads.map", x_in, y_in, z_in);
                 } else {
                     //fps_reset();
-                    hagl_clear_screen();
-                    current_demo = (current_demo + 1) % 12;
+                    //
+                    //current_demo = (current_demo + 1) % 12;        
                 }
             }
         } 
 
-        //if((SDL_GetTicks() - start) >= 16) { // Ludicrious Mode
-            hagl_hal_flush();
-            //start = SDL_GetTicks();
-        //}
+    if((SDL_GetTicks() - start) >= 100) { // Ludicrious Mode
+        start = SDL_GetTicks();
+    }
+    hagl_hal_flush();
+
     }
 
-    SDL_RemoveTimer(flush_id);
-    SDL_RemoveTimer(pps_id);
     hagl_close();
     return 0;
 }

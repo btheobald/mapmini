@@ -131,17 +131,6 @@ uint64_t get_varint(fb_handler * fbh, uint8_t len) {
     return val;
 }
 
-void get_string(fb_handler * fbh, char * ptr, uint8_t len) {
-    // Check Highwater, reload buffer if needed
-    if(fbh->buffer_pos + len > FILE_READ_BUFFER_SIZE) {
-        relative_reset_buffer(fbh, FILE_READ_BUFFER_SIZE - fbh->buffer_pos);
-    }
-
-    memcpy(ptr, (fbh->buffer_ptr + fbh->buffer_pos), len);
-    fbh->buffer_pos+=len;    
-    ptr[len] = '\0';
-}
-
 // LEB128 Decode
 uint32_t get_vbe_uint(fb_handler * fbh) {
     uint32_t val = 0;
@@ -177,4 +166,15 @@ int32_t get_vbe_int(fb_handler * fbh) {
     }
 
     return val | ((uint32_t)(byte & 0x3f) << shift);
+}
+
+void get_string(fb_handler * fbh, char * ptr, uint8_t len) {
+    // Check Highwater, reload buffer if needed
+    if(fbh->buffer_pos + len > FILE_READ_BUFFER_SIZE) {
+        relative_reset_buffer(fbh, FILE_READ_BUFFER_SIZE - fbh->buffer_pos);
+    }
+
+    memcpy(ptr, (fbh->buffer_ptr + fbh->buffer_pos), len);
+    fbh->buffer_pos+=len;    
+    ptr[len] = '\0';
 }

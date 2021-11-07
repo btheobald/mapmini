@@ -2,10 +2,11 @@
 #define WAY_GUARD
 
 #include <stdint.h>
-#include "parse.h"
 #include <math.h>
+#include "parse.h"
+#include "memory.h"
 
-typedef struct _way_coord { int16_t xy[2]; } way_coord;
+typedef int16_t way_coord[2];
 
 typedef struct _way_coord_blk { 
     uint8_t nodes;
@@ -26,15 +27,15 @@ typedef struct _way_prop {
     char *      name;
     char *      reference;
     char *      house;
-    way_coord label_off;
+    way_coord   label_off;
     uint8_t     blocks;
     way_data  * data;
 } way_prop;
 
-uint32_t get_way(way_prop * wp, fb_handler * fbh);
+uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena);
 
 #define EARTH_R_M 6378137
-#define SCALE 8
+#define SCALE 5
 
 // Local spherical approximation
 #define MD_RAD(X) (((float)X/1000000.0)*M_PI/180.0)

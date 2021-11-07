@@ -1,28 +1,22 @@
 #include "memory.h"
-#include <stdio.h>
 
-uint32_t current_pos;
-uint32_t * arena;
-uint32_t arena_size;
+uint8_t reg[ARENA_DEFAULT_SIZE];
 
-uint32_t * init_arena(uint32_t size) {
-    current_pos = 0;
-    arena = malloc(size);
-    arena_size = size;
-    return arena;
+void arena_init(arena_t * arena, uint32_t size) {
+    arena->region = (uint8_t*)&reg;//(malloc(sizeof(uint8_t)*size));
+    arena->size = sizeof(uint8_t)*size;
+    arena->current = 0;
 }
 
-void reset_arena() {
-    current_pos = 0;
+void* arena_malloc(arena_t * arena, size_t size) {
+    if(arena->current+size > arena->size) return NULL;
+    arena->current += size;
+    return (void *) (arena->region+arena->current);
 }
 
-void free_arena() {
-    printf("Arena %d/%d\n\r", current_pos, arena_size);
-    free(arena);
-}
-
-void* mark_bytes(uint16_t size) {
-    current_pos += size;
-    printf("Arena %d/%d\n\r", current_pos, arena_size);
-    return malloc(size); //(void *)(arena+current_pos);
+size_t arena_free(arena_t * arena) { // Invalidates existing pointers
+    size_t oldsize = arena->current;
+    arena->current = 0;
+    //free(arena->region);
+    return oldsize;
 }

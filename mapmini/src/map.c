@@ -1,5 +1,3 @@
-#include <stdio.h>
-#include <stdint.h>
 #include <string.h>
 #include <math.h>
 
@@ -7,40 +5,12 @@
 #include "parse.h"
 #include "way.h"
 #include "memory.h"
+#include <unistd.h>
+
+#include "hagl.h"
+#include "hagl_hal.h"
 
 #define MAPSFORGE_MAGIC_STRING "mapsforge binary OSM"
-
-typedef struct _mapsforge_zoom_interval {
-    uint8_t base_zoom;
-    uint8_t max_zoom;
-    uint8_t min_zoom;
-    uint64_t sub_file;
-    uint64_t sub_file_size;
-    uint16_t n_tiles_x;
-    uint16_t n_tiles_y;
-} mapsforge_zoom_interval;
-
-typedef struct _mapsforge_file_header {
-    uint32_t header_size;
-    uint32_t file_version;
-    uint64_t file_size; 
-    uint64_t file_creation; // Milliseconds!
-    int32_t bounding_box[4];
-    uint16_t tile_size;
-    char projection[16];
-    uint8_t flags;
-    int32_t init_lat_long[2];
-    uint8_t init_zoom;
-    char lang_pref[32];
-    char comment[40];
-    char created_by[40];
-    uint16_t n_poi_tags;
-    char poi_tag_names[100][32];
-    uint16_t n_way_tags;
-    char way_tag_names[360][32];
-    uint8_t n_zoom_intervals;
-    mapsforge_zoom_interval zoom_conf[3];
-} mapsforge_file_header;
 
 int long2tilex(double lon, int z) { 
 	return (int)(floor((lon + 180.0) / 360.0 * (1 << z))); 
@@ -51,7 +21,23 @@ int lat2tiley(double lat, int z) {
 	return (int)(floor((1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << z))); 
 }
 
-int load_map(char* filename) {
+void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer) {
+    // I don't know why multiblocks cause problems
+    //if(way->tag_ids[0] == layer) {
+    //    for(uint16_t way_data = 0; way_data < way->blocks; way_data++) {
+    //        for(uint16_t way_block = 0; way_block < way->data[way_data].polygons; way_block++) {
+                //if(way->data[way_data].block[way_block].nodes >= 1) {
+                //    hagl_draw_polygon(way->data[way_data].block[way_block].nodes, (int16_t*)(way->data[way_data].block[way_block].coords), hagl_color(255,255,255));
+                //}
+    //        }
+    //    }
+    //}
+    if(way->data[0].block[0].nodes >= 1) {
+        hagl_draw_polygon(way->data[0].block[0].nodes, (int16_t*)(way->data[0].block[0].coords), hagl_color(255,255,255));
+    }   
+}
+
+int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in) {
     fb_handler fbh;
     if(init_buffer(&fbh, "scotland_roads.map")) {
         return 1;
@@ -59,14 +45,15 @@ int load_map(char* filename) {
 
     printf("Read in %d Bytes\n\r", fbh.bytes_read);
 
-    init_arena(100000); // 100KB Buffer
-
     if(memcmp(fbh.buffer_ptr, MAPSFORGE_MAGIC_STRING, 20)) {
         printf("Not a valid .MAP file!\n\r");
         return -1;
     } else {
         printf("Valid .MAP: %s\n\r", fbh.buffer_ptr);
     }
+
+    arena_t a0;
+    arena_init(&a0, ARENA_DEFAULT_SIZE);
 
     fbh.buffer_pos += 20;
 
@@ -182,9 +169,7 @@ int load_map(char* filename) {
         printf("\tOSM Base Tile Origin: %d/%d/%d\n\r", hdr.zoom_conf[zoom_id].base_zoom, long2tilex(((double)hdr.bounding_box[1])/1000000, hdr.zoom_conf[zoom_id].base_zoom), lat2tiley(((double)hdr.bounding_box[2])/1000000, hdr.zoom_conf[zoom_id].base_zoom));
     }
     
-    uint32_t x_in = 8045;
-    uint32_t y_in = 5106;
-    uint32_t z_in = 14;
+
 
     int z_ds;
     for(z_ds = 0; z_ds < hdr.n_zoom_intervals; z_ds++)
@@ -225,20 +210,21 @@ int load_map(char* filename) {
     printf("First Way Offset: %lu - %lu\n\r", first_way_offset, first_way_file_addr);
     file_seek(&fbh, first_way_file_addr);                                   
 
-    const int ways_to_draw = ways[12]+ways[13]+ways[14];
+    const int ways_to_draw = ways[12]+ways[13]+ways[14];//+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     for(int w = 0; w < ways_to_draw; w++) {
-        way_size += get_way(&testway[w],&fbh);
-        //printf("%d ", w);
-        //g_draw_way(&testway[w], 0, testway[w].tag_ids[0]);
-        //printf("Drawn\n\r", w);
+        printf("LOAD ", w);
+        way_size += get_way(&testway[w],&fbh,&a0);
+        if(testway[w].subtile_bitmap & 0xFFFF)
+        printf("DRAW ", w);
+        g_draw_way(&testway[w], 0, testway[w].tag_ids[0]);
     }
 
     printf("Size of Ways: %d\n\r", way_size);
-
-    free_arena();
     
+    printf("Arena: %d/%d\n\r", arena_free(&a0), ARENA_DEFAULT_SIZE);
+
     file_close(&fbh);
 
     return 0;

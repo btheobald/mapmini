@@ -4,12 +4,16 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#define ARENA_SIZE 100000
+#define ARENA_DEFAULT_SIZE 100000
 
-uint32_t * init_arena(uint32_t size);
-void reset_arena();
-void free_arena();
+typedef struct {
+    uint8_t *region;
+    int32_t size;
+    size_t current;
+} arena_t;
 
-void* mark_bytes(uint16_t size);
+void  arena_init(arena_t * arena, size_t size);
+void* arena_malloc(arena_t * arena, size_t size);
+size_t arena_free(arena_t * arena);
 
 #endif

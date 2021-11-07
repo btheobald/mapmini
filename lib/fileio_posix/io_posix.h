@@ -1,7 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 
-#define FILE_READ_BUFFER_SIZE 1024  
+#define FILE_READ_BUFFER_SIZE 512  
 
 typedef struct _file_buffer_handler {
     FILE * fp;
