@@ -7,8 +7,8 @@
 #include "memory.h"
 #include <unistd.h>
 
-#include "hagl.h"
-#include "hagl_hal.h"
+//#include "hagl.h"
+//#include "hagl_hal.h"
 
 #define MAPSFORGE_MAGIC_STRING "mapsforge binary OSM"
 

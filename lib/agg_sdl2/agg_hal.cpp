@@ -102,17 +102,17 @@ void agg_hal_test(void) {
      {
          double border[] =
          {
-             0, 0,
-             DISPLAY_WIDTH/2, 0,
+             25, 25,
+             DISPLAY_WIDTH/2, 25,
              DISPLAY_WIDTH/2, DISPLAY_HEIGHT/2,
-             0, DISPLAY_HEIGHT/2,
-             0, 0
+             25, DISPLAY_HEIGHT/2,
+             25, 25
          };
 
          SimplePath path (border, sizeof(border) / sizeof(double));
          agg::conv_stroke<SimplePath> strokePath (path);
 
-         double strokeWidth = 1.0;
+         double strokeWidth = 4.0;
          strokePath.width(strokeWidth);
          strokePath.line_cap(agg::square_cap);
          strokePath.line_join(agg::miter_join);
@@ -140,10 +140,10 @@ void agg_hal_test(void) {
 
          agg::conv_stroke<SimplePath> strokePath (path);
 
-         double strokeWidth = 2.0;
+         double strokeWidth = 6.0;
          strokePath.width(strokeWidth);
-         strokePath.line_cap(agg::square_cap);
-         strokePath.line_join(agg::miter_join);
+         strokePath.line_cap(agg::round_cap);
+         strokePath.line_join(agg::round_join);
          strokePath.miter_limit(strokeWidth);
 
          ras.reset();

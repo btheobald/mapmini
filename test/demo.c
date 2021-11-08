@@ -29,20 +29,20 @@ SPDX-License-Identifier: MIT-0
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#define SDL_MAIN_HANDLED
 #include <SDL2/SDL.h>
 
-#include "hagl_hal.h"
-#include "hagl.h"
-#include "rgb565.h"
-#include "fps.h"
-#include "font6x9.h"
+//#include "hagl_hal.h"
+//#include "hagl.h"
+//#include "rgb565.h"
+//#include "fps.h"
+//#include "font6x9.h"
 
 #include "agg_hal.h"
 
 #include "map.h"
 
-int main()
-{
+int main(int argc, char *argv[]) {
     //hagl_init();
     agg_hal_init();
     agg_hal_test();
@@ -73,7 +73,7 @@ int main()
 
     while (!quit) {
 
-        current_pps = fps();
+        //current_pps = fps();
 
         if (SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
