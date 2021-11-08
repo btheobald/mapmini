@@ -37,11 +37,16 @@ SPDX-License-Identifier: MIT-0
 #include "fps.h"
 #include "font6x9.h"
 
+#include "agg_hal.h"
+
 #include "map.h"
 
 int main()
 {
-    hagl_init();
+    //hagl_init();
+    agg_hal_init();
+    agg_hal_test();
+    agg_hal_flush();
     //pod_set_clip_window(0, 30, 319, 210);
     srand(time(0));
 
@@ -57,14 +62,14 @@ int main()
     printf("Press any key to change demo.\n");
     printf("Press ESC to quit.\n\n");
 
-    hagl_clear_screen();
+    //hagl_clear_screen();
     uint32_t start = SDL_GetTicks();
 
     uint32_t x_in = 8044;
     uint32_t y_in = 5108;
     uint32_t z_in = 14;
 
-    load_map("scotland_roads.map", x_in, y_in, z_in);
+    //load_map("scotland_roads.map", x_in, y_in, z_in);
 
     while (!quit) {
 
@@ -79,20 +84,20 @@ int main()
                     quit = true;
                 } else if (event.key.keysym.sym == SDLK_LEFT) {
                     x_in--;
-                    hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    //hagl_clear_screen();
+                    //load_map("scotland_roads.map", x_in, y_in, z_in);
                 } else if (event.key.keysym.sym == SDLK_RIGHT) {
                     x_in++;
-                    hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    //hagl_clear_screen();
+                    //load_map("scotland_roads.map", x_in, y_in, z_in);
                 } else if (event.key.keysym.sym == SDLK_UP) {
                     y_in--;
-                    hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    //hagl_clear_screen();
+                    //load_map("scotland_roads.map", x_in, y_in, z_in);
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
                     y_in++;
-                    hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    //hagl_clear_screen();
+                    //load_map("scotland_roads.map", x_in, y_in, z_in);
                 } else {
                     //fps_reset();
                     //
@@ -104,10 +109,10 @@ int main()
     if((SDL_GetTicks() - start) >= 100) { // Ludicrious Mode
         start = SDL_GetTicks();
     }
-    hagl_hal_flush();
+    //hagl_hal_flush();
 
     }
 
-    hagl_close();
+    agg_hal_close();
     return 0;
 }

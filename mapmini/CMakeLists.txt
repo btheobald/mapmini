@@ -7,4 +7,4 @@ add_subdirectory(src)
 
 set_target_properties(mapmini PROPERTIES COMPILE_OPTIONS "-m32" LINK_FLAGS "-m32")
 
-target_link_libraries(mapmini PRIVATE m fileio_posix hagl)
+target_link_libraries(mapmini PRIVATE m fileio_posix hagl agg agg_hal)

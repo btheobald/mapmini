@@ -4,3 +4,6 @@
 [submodule "lib/arena"]
 	path = lib/arena
 	url = https://github.com/thejefflarson/arena.git
+[submodule "lib/agg-2.4"]
+	path = lib/agg-2.4
+	url = https://github.com/coconut2015/agg-2.4.git

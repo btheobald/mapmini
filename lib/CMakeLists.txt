@@ -16,3 +16,13 @@ target_link_libraries(hagl PUBLIC hagl_hal)
 
 add_subdirectory(hagl_sdl2)
 add_subdirectory(fileio_posix)
+
+add_library(agg INTERFACE)
+target_sources(agg INTERFACE
+    ${CMAKE_CURRENT_LIST_DIR}/agg-2.4/src/agg_vcgen_stroke.cpp)
+target_include_directories(agg INTERFACE ${CMAKE_CURRENT_LIST_DIR}/agg-2.4/include)
+#set_target_properties(agg PROPERTIES COMPILE_OPTIONS "-m32" LINK_FLAGS "-m32")
+target_link_libraries(agg)
+
+add_subdirectory(agg_sdl2)
+
