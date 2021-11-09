@@ -6,4 +6,4 @@ target_include_directories(agg_hal PUBLIC ${CMAKE_CURRENT_LIST_DIR}/.)
 
 set_target_properties(agg_hal PROPERTIES COMPILE_OPTIONS "-m32" LINK_FLAGS "-m32")
 
-target_link_libraries(agg_hal PUBLIC agg mingw32 SDL2main SDL2 )
+target_link_libraries(agg_hal PUBLIC agg SDL2main SDL2 )

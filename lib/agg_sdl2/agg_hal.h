@@ -9,9 +9,9 @@ extern "C" {
 #include <stdbool.h>
 
 /* HAL must provide display dimensions and depth. */
-#define DISPLAY_WIDTH   (240)
-#define DISPLAY_HEIGHT  (320)
-#define DISPLAY_SCALE   (1)
+#define DISPLAY_WIDTH   (272)
+#define DISPLAY_HEIGHT  (480)
+#define DISPLAY_SCALE   (2)
 
 void agg_hal_init(void);
 void agg_hal_flush(void);

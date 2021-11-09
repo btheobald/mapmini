@@ -58,7 +58,7 @@ void agg_hal_init(void)
     texture = SDL_CreateTexture(
         renderer,
         SDL_PIXELFORMAT_ABGR8888,
-        SDL_TEXTUREACCESS_STATIC,
+        SDL_TEXTUREACCESS_TARGET,
         DISPLAY_WIDTH,
         DISPLAY_HEIGHT
     );
@@ -162,7 +162,7 @@ void agg_hal_test(void) {
               50,  3,
               20, 97,
               95, 37,
-               5, 37,
+               //5, 37,
               80, 97,
               50,  3
          };
