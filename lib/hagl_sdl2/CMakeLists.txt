@@ -1,6 +1,6 @@
 add_library(hagl_hal STATIC)
 
-target_sources(hagl_hal PRIVATE ${CMAKE_CURRENT_LIST_DIR}/hagl_hal.c)
+target_sources(hagl_hal PRIVATE ${CMAKE_CURRENT_LIST_DIR}/hagl_hal.c ${CMAKE_CURRENT_LIST_DIR}/thick.c)
 
 target_include_directories(hagl_hal PUBLIC ${CMAKE_CURRENT_LIST_DIR}/.)
 

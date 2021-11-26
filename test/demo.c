@@ -44,6 +44,7 @@ SPDX-License-Identifier: MIT-0
 
 int main(int argc, char *argv[]) {
     hagl_init();
+    hagl_set_clip_window(1,1,129,129);
     //agg_hal_init();
     //agg_hal_test();
     //agg_hal_flush();
@@ -68,7 +69,8 @@ int main(int argc, char *argv[]) {
     uint32_t y_in = 5108;
     uint32_t z_in = 14;
 
-    load_map("scotland_roads.map", x_in, y_in, z_in);
+    int16_t xo = 245;
+    int16_t yo = 235;
 
     while (!quit) {
 
@@ -80,24 +82,37 @@ int main(int argc, char *argv[]) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     quit = true;
                 } else if (event.key.keysym.sym == SDLK_LEFT) {
-                    x_in--;
                     hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    xo+=5;
                 } else if (event.key.keysym.sym == SDLK_RIGHT) {
-                    x_in++;
                     hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    xo-=5;
                 } else if (event.key.keysym.sym == SDLK_UP) {
-                    y_in--;
                     hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    yo+=5;
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
-                    y_in++;
                     hagl_clear_screen();
-                    load_map("scotland_roads.map", x_in, y_in, z_in);
+                    yo-=5;
                 } else {                    
                     current_demo = (current_demo + 1) % 12;        
                 }
+
+                if(yo < 0) { y_in++; yo = 469; }
+                if(yo > 470) { y_in--; yo = 1; }
+                if(xo < 0) { x_in++; xo = 489; }
+                if(xo > 490) { x_in--; xo = 1; }
+
+                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%490,     yo%470);
+                load_map("scotland_roads.map", x_in-1, y_in,    z_in, xo%490-490, yo%470);
+                load_map("scotland_roads.map", x_in,   y_in-1,  z_in, xo%490,     yo%470-470);
+                load_map("scotland_roads.map", x_in-1, y_in-1,  z_in, xo%490-490, yo%470-470);
+
+                /*hagl_draw_line(xo%490, yo%480, xo%490-490, yo%470, hagl_hal_color(255,0,0));
+                hagl_draw_line(xo%490, yo%480, xo%490+490, yo%470, hagl_hal_color(255,0,0));
+                hagl_draw_line(xo%490, yo%480, xo%490, yo%470-470, hagl_hal_color(255,0,0));
+                hagl_draw_line(xo%490, yo%480, xo%490, yo%470+470, hagl_hal_color(255,0,0));*/
+
+                printf("%d %d\n", xo, yo);
             }
         } 
 

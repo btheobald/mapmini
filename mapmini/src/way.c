@@ -76,13 +76,13 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena) {
 
             wp->data[wdb].block[wcb].coords[0][0] = abs(lat_to_y(last_lat_md));
             wp->data[wdb].block[wcb].coords[0][1] = abs(lon_to_x(last_lon_md));
-            printf("%d ", wp->data[wdb].block[wcb].coords[0][0]);
-            if(wp->data[wdb].block[wcb].coords[0][0] > 500)
-            printf(" -- BAD X -- ");
+            //printf("%d ", wp->data[wdb].block[wcb].coords[0][0]);
+            //if(wp->data[wdb].block[wcb].coords[0][0] > 500)
+            //printf(" -- BAD X -- ");
 
-            printf("%d ", wp->data[wdb].block[wcb].coords[0][1]);
-            if(wp->data[wdb].block[wcb].coords[0][1] > 500)
-            printf(" -- BAD Y -- ");
+            //printf("%d ", wp->data[wdb].block[wcb].coords[0][1]);
+            //if(wp->data[wdb].block[wcb].coords[0][1] > 500)
+            //printf(" -- BAD Y -- ");
 
             // Loop Coordinates
             if(!(wp->flags & 0x04)) { // Single Delta
@@ -91,12 +91,12 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena) {
                     last_lat_md += get_vbe_int(fbh);
                     wp->data[wdb].block[wcb].coords[wc][0] = abs(lat_to_y(last_lat_md));
                     wp->data[wdb].block[wcb].coords[wc][1] = abs(lon_to_x(last_lon_md));
-                    printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
-                    if(wp->data[wdb].block[wcb].coords[wc][0] > 500)
-                    printf(" -- BAD X -- ");
-                    printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
-                    if(wp->data[wdb].block[wcb].coords[wc][1] > 500)
-                    printf(" -- BAD Y -- ");
+                    //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
+                    //if(wp->data[wdb].block[wcb].coords[wc][0] > 500)
+                    //printf(" -- BAD X -- ");
+                    //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
+                    //if(wp->data[wdb].block[wcb].coords[wc][1] > 500)
+                    //printf(" -- BAD Y -- ");
                 }
             } else { // Double Delta
                 int32_t dx = 0;
@@ -108,16 +108,16 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena) {
                     last_lat_md += dy;
                     wp->data[wdb].block[wcb].coords[wc][0] = abs(lat_to_y(last_lat_md));
                     wp->data[wdb].block[wcb].coords[wc][1] = abs(lon_to_x(last_lon_md));
-                    printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
-                    if(wp->data[wdb].block[wcb].coords[wc][0] > 500)
-                    printf(" -- BAD X -- ");
-                    printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
-                    if(wp->data[wdb].block[wcb].coords[wc][1] > 500)
-                    printf(" -- BAD Y -- ");
+                    //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
+                    //if(wp->data[wdb].block[wcb].coords[wc][0] > 500)
+                    //printf(" -- BAD X -- ");
+                    //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
+                    //if(wp->data[wdb].block[wcb].coords[wc][1] > 500)
+                    //printf(" -- BAD Y -- ");
                 }
             }
 
-            printf("Poly\n");
+            //printf("Poly\n");
         }
     }
 

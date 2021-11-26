@@ -7,8 +7,9 @@
 #include "memory.h"
 #include <unistd.h>
 
-//#include "hagl.h"
-//#include "hagl_hal.h"
+#include "hagl.h"
+#include "hagl_hal.h"
+#include "thick.h"
 
 #define MAPSFORGE_MAGIC_STRING "mapsforge binary OSM"
 
@@ -21,7 +22,7 @@ int lat2tiley(double lat, int z) {
 	return (int)(floor((1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << z))); 
 }
 
-void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer) {
+void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo) {
     // I don't know why multiblocks cause problems
     //if(way->tag_ids[0] == layer) {
     //    for(uint16_t way_data = 0; way_data < way->blocks; way_data++) {
@@ -32,12 +33,52 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer) {
     //        }
     //    }
     //}
-    if(way->data[0].block[0].nodes >= 1) {
-        hagl_draw_polygon(way->data[0].block[0].nodes, (int16_t*)(way->data[0].block[0].coords), hagl_color(255,255,255));
+
+    if(way->data[0].block[0].nodes > 1) {
+        for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
+            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i+1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i+1][1])){
+
+            uint16_t cl = hagl_hal_color(100,100,100);
+            uint8_t th = 1;
+
+            switch(way->tag_ids[0]) {
+                case 1: // Residential
+                    cl = hagl_hal_color(200,200,200);
+                    th = 1;
+                    break;
+                case 7: // Primary
+                    cl = hagl_hal_color(255,200,112);
+                    th = 3;
+                    break;
+                case 8: // Tertiary
+                    cl = hagl_hal_color(255,255,255);
+                    th = 2;
+                    break;
+                case 11: // Trunk
+                    cl = hagl_hal_color(255,152,112);
+                    th = 4;
+                    break;
+                case 12: // Secondary
+                    cl = hagl_hal_color(255,245,112);
+                    th = 2;
+                    break;
+                case 21: // Motorway
+                    cl = hagl_hal_color(255,112,112);
+                    th = 5;
+                    break;
+            }   
+
+            if(cl != 0) draw_varthick_line( xo+way->data[0].block[0].coords[i][0], 
+                                yo+way->data[0].block[0].coords[i][1],
+                                xo+way->data[0].block[0].coords[i+1][0],
+                                yo+way->data[0].block[0].coords[i+1][1],
+                                th, cl);
+            }
+        }
     }   
 }
 
-int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in) {
+int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t xo, int16_t yo) {
     fb_handler fbh;
     if(init_buffer(&fbh, "scotland_roads.map")) {
         return 1;
@@ -214,11 +255,11 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in) {
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     for(int w = 0; w < ways_to_draw; w++) {
-        printf("LOAD ", w);
+        //printf("LOAD ", w);
         way_size += get_way(&testway[w],&fbh,&a0);
         if(testway[w].subtile_bitmap & 0xFFFF)
-        printf("DRAW ", w);
-        g_draw_way(&testway[w], 0, testway[w].tag_ids[0]);
+        //printf("DRAW ", w);
+        g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo);
     }
 
     printf("Size of Ways: %d\n\r", way_size);
