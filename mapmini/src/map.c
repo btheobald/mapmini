@@ -22,6 +22,17 @@ int lat2tiley(double lat, int z) {
 	return (int)(floor((1.0 - asinh(tan(latrad)) / M_PI) / 2.0 * (1 << z))); 
 }
 
+float tilex2long(int x, int z) 
+{
+	return x / (float)(1 << z) * 360.0 - 180;
+}
+
+float tiley2lat(int y, int z) 
+{
+	float n = M_PI - 2.0 * M_PI * y / (float)(1 << z);
+	return 180.0 / M_PI * atan(0.5 * (exp(n) - exp(-n)));
+}
+
 void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo) {
     // I don't know why multiblocks cause problems
     //if(way->tag_ids[0] == layer) {
@@ -41,32 +52,89 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
             uint16_t cl = hagl_hal_color(100,100,100);
             uint8_t th = 1;
 
-            switch(way->tag_ids[0]) {
-                case 1: // Residential
-                    cl = hagl_hal_color(200,200,200);
-                    th = 1;
-                    break;
-                case 7: // Primary
-                    cl = hagl_hal_color(255,200,112);
-                    th = 3;
-                    break;
-                case 8: // Tertiary
-                    cl = hagl_hal_color(255,255,255);
-                    th = 2;
-                    break;
-                case 11: // Trunk
-                    cl = hagl_hal_color(255,152,112);
-                    th = 4;
-                    break;
-                case 12: // Secondary
-                    cl = hagl_hal_color(255,245,112);
-                    th = 2;
-                    break;
-                case 21: // Motorway
-                    cl = hagl_hal_color(255,112,112);
-                    th = 5;
-                    break;
-            }   
+            for(int t = 0; t < way->n_tags; t++) {
+                switch(way->tag_ids[t]) {
+                    case 26: // Pedestrian
+                    case 13: // Steps
+                        cl = hagl_hal_color(0xE5,0xE0,0xC2);
+                        th = 1;
+                        goto tag_found;
+                    case 3: // Footway
+                    case 4: // Path
+                        cl = hagl_hal_color(0xAA,0x00,0x00);
+                        th = 1;
+                        goto tag_found;
+                    case 2: // Track
+                        cl = hagl_hal_color(0xFF,0xFA,0xF2);
+                        th = 1;
+                        goto tag_found;                    
+                    case 14: // Cycleway
+                        cl = hagl_hal_color(0xFF,0xF2,0xDE);
+                        th = 1;
+                        goto tag_found;
+                    case 32: // Bridleway
+                        cl = hagl_hal_color(0xD3,0xCB,0x98);
+                        th = 1;
+                        goto tag_found;           
+                    case 0: // Service
+                        cl = hagl_hal_color(0xFF,0xFF,0xFF);
+                        th = 1;
+                        goto tag_found;          
+                    case 28: // Construction
+                        cl = hagl_hal_color(0xD0,0xD0,0xD0);
+                        th = 1;
+                        goto tag_found;    
+                    case 64: // Road
+                        cl = hagl_hal_color(0xD0,0xD0,0xD0);
+                        th = 2;
+                        goto tag_found;              
+                    case 1: // Residential
+                    case 6: // Unclassified
+                    case 30: // Living Street
+                        cl = hagl_hal_color(0xFF,0xFF,0xFF);
+                        th = 2;
+                        goto tag_found;
+                    case 8:  // Tertiary
+                    case 35: // Tertiary Link
+                        cl = hagl_hal_color(0xFF,0xFF,0x90);
+                        th = 3;
+                        goto tag_found;         
+                    case 34: // Secondary Link
+                        cl = hagl_hal_color(0xFE,0x85,0x0C);
+                        th = 3;
+                        goto tag_found;
+                    case 27: // Primary Link
+                        cl = hagl_hal_color(0xDB,0x00,0x66);
+                        th = 3;
+                        goto tag_found;          
+                    case 24: // Trunk Link
+                        cl = hagl_hal_color(0x00,0x80,0x30);
+                        th = 3;
+                        goto tag_found;          
+                    case 23: // Motorway Link
+                        cl = hagl_hal_color(0x00,0x82,0xD6);
+                        th = 3;
+                        goto tag_found;         
+                    case 12: // Secondary
+                        cl = hagl_hal_color(0xFE,0x85,0x0C);
+                        th = 3;
+                        goto tag_found;
+                    case 7: // Primary
+                        cl = hagl_hal_color(0x00,0x82,0xD6);
+                        th = 4;
+                        goto tag_found;
+                    case 11: // Trunk
+                        cl = hagl_hal_color(0x00,0x80,0x30);
+                        th = 4;
+                        goto tag_found;
+                    case 21: // Motorway
+                        cl = hagl_hal_color(0x00,0x82,0xD6);
+                        th = 3;
+                        goto tag_found;
+                } 
+            }
+
+            tag_found:
 
             if(cl != 0) draw_varthick_line( xo+way->data[0].block[0].coords[i][0], 
                                 yo+way->data[0].block[0].coords[i][1],

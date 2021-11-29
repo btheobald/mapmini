@@ -35,7 +35,7 @@ typedef struct _way_prop {
 uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena);
 
 #define EARTH_R_M 6378137
-#define SCALE 5
+#define SCALE 6
 
 // Local spherical approximation
 #define MD_RAD(X) (((float)X/1000000.0)*M_PI/180.0)
