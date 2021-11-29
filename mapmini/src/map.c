@@ -278,8 +278,6 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
         printf("\tOSM Base Tile Origin: %d/%d/%d\n\r", hdr.zoom_conf[zoom_id].base_zoom, long2tilex(((double)hdr.bounding_box[1])/1000000, hdr.zoom_conf[zoom_id].base_zoom), lat2tiley(((double)hdr.bounding_box[2])/1000000, hdr.zoom_conf[zoom_id].base_zoom));
     }
     
-
-
     int z_ds;
     for(z_ds = 0; z_ds < hdr.n_zoom_intervals; z_ds++)
         if(z_in > hdr.zoom_conf[z_ds].min_zoom & \
@@ -292,10 +290,21 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
 
     uint32_t t_lookup = ((y_ds*hdr.zoom_conf[z_ds].n_tiles_x) + x_ds);
 
+    const uint64_t addr_mask =  0x0000007fffffffffULL;
+    const uint64_t water_mask = 0x0000008000000000ULL;
+
     file_seek(&fbh, hdr.zoom_conf[z_ds].sub_file+(t_lookup*5));
-    uint64_t offset_lookup = get_varint(&fbh, 5) & 0x7fffffffff;
-    
-    printf("%u/%d/%d -> %lu, %llu\n\r", hdr.zoom_conf[z_ds].base_zoom, x_in, y_in, t_lookup, offset_lookup);
+    uint64_t addr_lookup = get_varint(&fbh, 5);
+    uint64_t offset_lookup = addr_lookup & addr_mask;
+
+    if(addr_lookup & water_mask) {
+      printf("Only Water\n");
+      printf("Arena: %d/%d\n\r", arena_free(&a0), ARENA_DEFAULT_SIZE);
+      file_close(&fbh);
+      return 0;
+    }
+        
+    printf("%u/%d/%d -> %lu, %llu, %llu\n\r", hdr.zoom_conf[z_ds].base_zoom, x_in, y_in, t_lookup, offset_lookup, addr_lookup&water_mask);
     
     file_seek(&fbh, hdr.zoom_conf[z_ds].sub_file+offset_lookup);
 
@@ -322,9 +331,34 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     const int ways_to_draw = ways[12]+ways[13]+ways[14];//+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
+    
+    double lon = tilex2long(x_in,z_in);
+    double lat = tiley2lat(y_in,z_in);
+  
+    double lon1 = tilex2long(x_in+1,z_in);
+    double lat1 = tiley2lat(y_in+1,z_in);
+  
+    double londiff = fabs(lon1-lon);
+    double latdiff = fabs(lat1-lat);
+  
+    printf("tile   origin: %f, %f\n", lat, lon);
+    printf("tile + origin: %f, %f\n", lat1, lon1);
+    printf("tile differences: %f, %f\n", fabs(lat1-lat), fabs(lon1-lon));
+    
+    int x_pix = lon_to_x(londiff*1000000, 1);
+    int y_pix = lat_to_y(latdiff*1000000, 1);
+    float x_mercator = ((float)x_pix/y_pix);
+    float fit_scale = y_pix/256.0f;
+    int x_fit = lon_to_x(londiff*1000000, x_mercator*fit_scale);
+    int y_fit = lat_to_y(latdiff*1000000, fit_scale);
+    
+    printf("scale diff to: %d, %d\n", y_pix, x_pix);
+    printf("scale factors: %f, %f (%f)\n", fit_scale, x_mercator*fit_scale, x_mercator);
+    printf("fit diff tile: %d, %d\n", y_fit, x_fit);
+      
     for(int w = 0; w < ways_to_draw; w++) {
         //printf("LOAD ", w);
-        way_size += get_way(&testway[w],&fbh,&a0);
+        way_size += get_way(&testway[w],&fbh,&a0, fit_scale, x_mercator);
         if(testway[w].subtile_bitmap & 0xFFFF)
         //printf("DRAW ", w);
         g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo);

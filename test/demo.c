@@ -44,7 +44,8 @@ SPDX-License-Identifier: MIT-0
 
 int main(int argc, char *argv[]) {
     hagl_init();
-    hagl_set_clip_window(1,1,511,511);
+    hagl_set_clip_window(1,1,DISPLAY_WIDTH-1,DISPLAY_HEIGHT-1);
+    //hagl_set_clip_window(DISPLAY_WIDTH/4,DISPLAY_HEIGHT/4,DISPLAY_WIDTH-DISPLAY_WIDTH/4,DISPLAY_HEIGHT-DISPLAY_HEIGHT/4);
     //agg_hal_init();
     //agg_hal_test();
     //agg_hal_flush();
@@ -72,8 +73,6 @@ int main(int argc, char *argv[]) {
     int16_t xo = 0;
     int16_t yo = 0;
 
-    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo,     yo);
-
     float lon_diff = (tilex2long(x_in, z_in)-tilex2long(x_in-1, z_in));
     float lat_diff = (tiley2lat(y_in, z_in)-tiley2lat(y_in-1, z_in));
 
@@ -82,6 +81,14 @@ int main(int argc, char *argv[]) {
     int32_t lat_pix = lat_to_y((int32_t)(lat_diff*1000000));
 
     printf("Lat: %d, Lon: %d\n", lat_pix, lon_pix);
+
+    const int tile_size = 256;
+
+    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size);
+    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size);
+    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size);
+    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size);
+
 
     while (!quit) {
 
@@ -94,38 +101,32 @@ int main(int argc, char *argv[]) {
                     quit = true;
                 } else if (event.key.keysym.sym == SDLK_LEFT) {
                     hagl_clear_screen();
-                    xo+=5;
+                    xo+=64;
                 } else if (event.key.keysym.sym == SDLK_RIGHT) {
                     hagl_clear_screen();
-                    xo-=5;
+                    xo-=64;
                 } else if (event.key.keysym.sym == SDLK_UP) {
                     hagl_clear_screen();
-                    yo+=5;
+                    yo+=64;
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
                     hagl_clear_screen();
-                    yo-=5;
+                    yo-=64;
                 } else {                    
                     current_demo = (current_demo + 1) % 12;        
                 }
 
-                //if(yo < 0) { y_in++; yo = 469; }
-                //if(yo > 470) { y_in--; yo = 1; }
-                //if(xo < 0) { x_in++; xo = 489; }
-                //if(xo > 490) { x_in--; xo = 1; }
+                if(yo < -tile_size/2) { y_in++; yo = tile_size/2-tile_size/4; }
+                else if(yo >= tile_size/2) { y_in--; yo = -tile_size/2; }
+                if(xo < -tile_size/2) { x_in++; xo = tile_size/2-tile_size/4; }
+                else if(xo >= tile_size/2) { x_in--; xo = -tile_size/2; }
 
-                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo,     yo);
-                
-                
+                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size);
+                load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size);
+                load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size);
+                load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size);
 
-
-                //load_map("scotland_roads.map", x_in-1, y_in,    z_in, xo%490-490, yo%470);
-                //load_map("scotland_roads.map", x_in,   y_in-1,  z_in, xo%490,     yo%470-470);
-                //load_map("scotland_roads.map", x_in-1, y_in-1,  z_in, xo%490-490, yo%470-470);
-
-                //hagl_draw_line(xo%490, yo%480, xo%490-490, yo%470, hagl_hal_color(255,0,0));
-                //hagl_draw_line(xo%490, yo%480, xo%490+490, yo%470, hagl_hal_color(255,0,0));
-                //hagl_draw_line(xo%490, yo%480, xo%490, yo%470-470, hagl_hal_color(255,0,0));
-                //hagl_draw_line(xo%490, yo%480, xo%490, yo%470+470, hagl_hal_color(255,0,0));
+                draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
+                draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));
 
                 printf("%d, %d, %d %d\n", x_in, y_in, xo, yo);
             }
