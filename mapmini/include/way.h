@@ -9,7 +9,7 @@
 typedef int16_t way_coord[2];
 
 typedef struct _way_coord_blk { 
-    uint8_t nodes;
+    uint16_t nodes;
     way_coord * coords; 
 } way_coord_blk;
 

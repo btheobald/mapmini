@@ -146,7 +146,7 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
     }   
 }
 
-int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t xo, int16_t yo) {
+int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t xo, int16_t yo, uint16_t st) {
     fb_handler fbh;
     if(init_buffer(&fbh, "scotland_roads.map")) {
         return 1;
@@ -359,7 +359,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     for(int w = 0; w < ways_to_draw; w++) {
         //printf("LOAD ", w);
         way_size += get_way(&testway[w],&fbh,&a0, fit_scale, x_mercator);
-        if(testway[w].subtile_bitmap & 0xFFFF)
+        if(testway[w].subtile_bitmap & st)
         //printf("DRAW ", w);
         g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo);
     }

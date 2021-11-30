@@ -84,10 +84,10 @@ int main(int argc, char *argv[]) {
 
     const int tile_size = 256;
 
-    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size);
-    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size);
-    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size);
-    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size);
+    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, 0x0001);
+    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, 0x0001);
+    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, 0x0000);
+    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, 0x0000);
 
 
     while (!quit) {
@@ -101,16 +101,16 @@ int main(int argc, char *argv[]) {
                     quit = true;
                 } else if (event.key.keysym.sym == SDLK_LEFT) {
                     hagl_clear_screen();
-                    xo+=64;
+                    xo+=16;
                 } else if (event.key.keysym.sym == SDLK_RIGHT) {
                     hagl_clear_screen();
-                    xo-=64;
+                    xo-=16;
                 } else if (event.key.keysym.sym == SDLK_UP) {
                     hagl_clear_screen();
-                    yo+=64;
+                    yo+=16;
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
                     hagl_clear_screen();
-                    yo-=64;
+                    yo-=16;
                 } else {                    
                     current_demo = (current_demo + 1) % 12;        
                 }
@@ -120,25 +120,40 @@ int main(int argc, char *argv[]) {
                 if(xo < -tile_size/2) { x_in++; xo = tile_size/2-tile_size/4; }
                 else if(xo >= tile_size/2) { x_in--; xo = -tile_size/2; }
 
-                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size);
-                load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size);
-                load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size);
-                load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size);
+                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, ((0x0001<<(4*(yo/16)))<<(xo/16)));
+                load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, ((0x0001<<(4*(yo/16)))<<(xo/16)));
+                load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, ((0x0001<<(4*(yo/16)))<<(xo/16)));
+                load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, ((0x0001<<(4*(yo/16)))<<(xo/16)));
 
                 draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
                 draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));
 
                 printf("%d, %d, %d %d\n", x_in, y_in, xo, yo);
+                
+                printf("%d, %d\n", xo%tile_size, yo%tile_size);
             }
         } 
 
     if((SDL_GetTicks() - start) >= 100) { // Ludicrious Mode
         start = SDL_GetTicks();
+        hagl_hal_flush();
     }
-    hagl_hal_flush();
 
     }
 
     //agg_hal_close();
     return 0;
 }
+
+
+// Calculate Subtiles
+// 0000-0000
+// 0000-0000
+// 00xx-xx00
+// 00xx-xx00
+// |||| ||||
+// 00xx-xx00
+// 00xx-xx00
+// 0000-0000
+// 0000-0000
+
