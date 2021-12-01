@@ -32,7 +32,7 @@ typedef struct _way_prop {
     way_data  * data;
 } way_prop;
 
-uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, float scale, float x_mercator);
+uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, float scale, float x_mercator);
 
 #define EARTH_R_M 6378137
 #define SCALE 6

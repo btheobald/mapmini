@@ -2,7 +2,7 @@
 #include "memory.h"
 #include <time.h>
 
-uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, float scale, float x_mercator) {
+uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, float scale, float x_mercator) {
     uint32_t ds = get_vbe_uint(fbh);
     //printf("Size: %d -  ", ds);
 
@@ -12,6 +12,10 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, float scale, 
 
     wp->subtile_bitmap = get_uint16(fbh);
     //printf("Subtile: %04X -  ", wp->subtile_bitmap);
+
+    //if(st & wp->subtile_bitmap) {
+    //    return ds-2;
+    //}
 
     uint8_t special = get_uint8(fbh);
     wp->osm_layer = (special & 0xf0) >> 4;
@@ -108,7 +112,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, float scale, 
     }
     //printf("\n");
 
-    return ds;
+    return 0; // No advance needed
 }
 
 int32_t lon_to_x(int32_t lon, float scale) {

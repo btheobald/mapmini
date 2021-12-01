@@ -328,7 +328,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     printf("First Way Offset: %lu - %lu\n\r", first_way_offset, first_way_file_addr);
     file_seek(&fbh, first_way_file_addr);                                   
 
-    const int ways_to_draw = ways[12]+ways[13]+ways[14];//+ways[15];
+    int ways_to_draw = ways[12];//+ways[13];//+ways[14];//+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     
@@ -357,11 +357,9 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     printf("fit diff tile: %d, %d\n", y_fit, x_fit);
       
     for(int w = 0; w < ways_to_draw; w++) {
-        //printf("LOAD ", w);
-        way_size += get_way(&testway[w],&fbh,&a0, fit_scale, x_mercator);
-        if(testway[w].subtile_bitmap & st)
-        //printf("DRAW ", w);
-        g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo);
+        way_size = get_way(&testway[w],&fbh,&a0, st, fit_scale, x_mercator);
+        if(st & testway[w].subtile_bitmap)
+            g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo);
     }
 
     printf("Size of Ways: %d\n\r", way_size);

@@ -19,6 +19,11 @@ static inline void file_seek(fb_handler * fbh, uint32_t offset) {
     load_buffer(fbh);
 };
 
+static inline void file_seek_rel(fb_handler * fbh, uint32_t offset) { 
+    fseek(fbh->fp, offset, SEEK_CUR);
+    load_buffer(fbh);
+};
+
 static inline void file_close(fb_handler * fbh) { 
     fclose(fbh->fp); 
 };
