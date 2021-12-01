@@ -22,7 +22,7 @@ typedef struct _way_prop {
     uint16_t    subtile_bitmap;
     uint8_t     osm_layer;
     uint8_t     n_tags;
-    uint16_t *  tag_ids;
+    uint8_t *  tag_ids;
     uint8_t     flags;
     char *      name;
     char *      reference;

@@ -57,9 +57,9 @@ uint16_t get_st(int16_t xo, int16_t yo, uint8_t q) {
         for(int x = 0; x < 8; x++) {
             if(x >= xmin && x < xmax && y >= ymin && y < ymax)
                 map[y][x] = 1;
-            printf("%d", map[y][x]);
+            //printf("%d", map[y][x]);
         }
-        printf("\n");
+        //printf("\n");
     }
 
     int8_t qlxmin, qlxmax;
@@ -75,9 +75,9 @@ uint16_t get_st(int16_t xo, int16_t yo, uint8_t q) {
     for(int y = 0; y <= 3; y++) {
         for(int x = 0; x <= 3; x++) {
             st_map |= (map[qlymin+y][qlxmin+x] << (3-x)) << (3-y)*4;
-            printf("%d", (map[qlymin+y][qlxmin+x]));
+            //printf("%d", (map[qlymin+y][qlxmin+x]));
         }
-        printf("\n");
+        //printf("\n");
     }
 
     return st_map;
@@ -85,8 +85,8 @@ uint16_t get_st(int16_t xo, int16_t yo, uint8_t q) {
 
 int main(int argc, char *argv[]) {
     hagl_init();
-    //hagl_set_clip_window(1,1,DISPLAY_WIDTH-1,DISPLAY_HEIGHT-1);
-    hagl_set_clip_window(DISPLAY_WIDTH/4,DISPLAY_HEIGHT/4,DISPLAY_WIDTH-DISPLAY_WIDTH/4,DISPLAY_HEIGHT-DISPLAY_HEIGHT/4);
+    hagl_set_clip_window(1,1,DISPLAY_WIDTH-1,DISPLAY_HEIGHT-1);
+    //hagl_set_clip_window(DISPLAY_WIDTH/4,DISPLAY_HEIGHT/4,DISPLAY_WIDTH-DISPLAY_WIDTH/4,DISPLAY_HEIGHT-DISPLAY_HEIGHT/4);
     //agg_hal_init();
     //agg_hal_test();
     //agg_hal_flush();
@@ -114,21 +114,7 @@ int main(int argc, char *argv[]) {
     int16_t xo = 0;
     int16_t yo = 0;
 
-    float lon_diff = (tilex2long(x_in, z_in)-tilex2long(x_in-1, z_in));
-    float lat_diff = (tiley2lat(y_in, z_in)-tiley2lat(y_in-1, z_in));
-
-    printf("Lat: %f, Lon: %f\n", lat_diff, lon_diff);
-    int32_t lon_pix = lon_to_x((int32_t)(lon_diff*1000000));
-    int32_t lat_pix = lat_to_y((int32_t)(lat_diff*1000000));
-
-    printf("Lat: %d, Lon: %d\n", lat_pix, lon_pix);
-
     const int tile_size = 256;
-
-    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, 0x0001);
-    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, 0x0008);
-    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, 0x1000);
-    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, 0x8000);
 
     while (!quit) {
 
@@ -141,61 +127,49 @@ int main(int argc, char *argv[]) {
                     quit = true;
                 } else if (event.key.keysym.sym == SDLK_LEFT) {
                     hagl_clear_screen();
-                    xo+=16;
+                    xo+=8;
                 } else if (event.key.keysym.sym == SDLK_RIGHT) {
                     hagl_clear_screen();
-                    xo-=16;
+                    xo-=8;
                 } else if (event.key.keysym.sym == SDLK_UP) {
                     hagl_clear_screen();
-                    yo+=16;
+                    yo+=8;
                 } else if (event.key.keysym.sym == SDLK_DOWN) {
                     hagl_clear_screen();
-                    yo-=16;
+                    yo-=8;
                 } else {                    
                     current_demo = (current_demo + 1) % 12;        
                 }
 
-                if(yo < -tile_size/2) { y_in++; yo = tile_size/2-tile_size/4; }
-                else if(yo >= tile_size/2) { y_in--; yo = -tile_size/2; }
-                if(xo < -tile_size/2) { x_in++; xo = tile_size/2-tile_size/4; }
-                else if(xo >= tile_size/2) { x_in--; xo = -tile_size/2; }
+                if(yo < -tile_size/2)      { y_in++; yo =  tile_size/2-8; }
+                else if(yo > tile_size/2) { y_in--; yo = -tile_size/2+8; }
+                if(xo < -tile_size/2)      { x_in++; xo =  tile_size/2-8; }
+                else if(xo > tile_size/2) { x_in--; xo = -tile_size/2+8; }
 
+                printf("Q0: ");
                 load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, get_st(xo,yo,0));
+                printf("Q1: ");
                 load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, get_st(xo,yo,1));
+                printf("Q2: ");
                 load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, get_st(xo,yo,2));
+                printf("Q3: ");
                 load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, get_st(xo,yo,3));
+                printf("\n");
+
+                printf("%d, %d\n", xo, yo);
 
                 draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
                 draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));
-
-                printf("%d, %d, %d %d\n", x_in, y_in, xo, yo);
-                
-                get_st(xo,yo,0);
-
-                printf("%d, %d\n", xo%tile_size, yo%tile_size);
             }
         } 
 
-    if((SDL_GetTicks() - start) >= 100) { // Ludicrious Mode
-        start = SDL_GetTicks();
+    //if((SDL_GetTicks() - start) >= 16) { // Ludicrious Mode
+    //    start = SDL_GetTicks();
         hagl_hal_flush();
-    }
+    //}
 
     }
 
     //agg_hal_close();
     return 0;
 }
-
-
-// Calculate Subtiles
-// 0000-0000
-// 0000-0000
-// 00xx-xx00
-// 00xx-xx00
-// |||| ||||
-// 00xx-xx00
-// 00xx-xx00
-// 0000-0000
-// 0000-0000
-

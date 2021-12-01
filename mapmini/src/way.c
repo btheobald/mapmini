@@ -13,22 +13,24 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     wp->subtile_bitmap = get_uint16(fbh);
     //printf("Subtile: %04X -  ", wp->subtile_bitmap);
 
-    //if(st & wp->subtile_bitmap) {
-    //    return ds-2;
-    //}
+    if(!(st & wp->subtile_bitmap)) {
+        for(int i = 0; i<ds-2; i++) { get_uint8(fbh); } // Read through buffer.
+        return ds-2;
+    }
 
     uint8_t special = get_uint8(fbh);
     wp->osm_layer = (special & 0xf0) >> 4;
     //printf("Layer: %d -  ", wp->osm_layer);
     wp->n_tags = (special & 0x0f);
 
-    wp->tag_ids = (uint16_t*)arena_malloc(arena,sizeof(uint16_t)*wp->n_tags);
+    wp->tag_ids = (uint8_t*)arena_malloc(arena,sizeof(uint8_t)*wp->n_tags);
     //printf("Tags: %d -  ", wp->n_tags);
 
     for(int tag = 0; tag < wp->n_tags; tag++) {
         wp->tag_ids[tag] = get_vbe_uint(fbh);
-        //printf("%d - ", wp->tag_ids[tag]);
+        //printf("%u - ", wp->tag_ids[tag]);
     }
+    //printf("\n");
 
     wp->flags = get_uint8(fbh);
 

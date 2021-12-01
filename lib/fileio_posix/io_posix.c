@@ -4,10 +4,10 @@ int init_buffer(fb_handler * fbh, char * filename) {
     fbh->buffer_pos = 0;
     fbh->bytes_read = 0;
 
-    printf("Opening: %s\n\r", filename);
+    //printf("Opening: %s\n\r", filename);
     fbh->fp = fopen(filename, "rb");
     if(fbh->fp == NULL) {
-        printf("Failed\n\r");
+        //printf("Failed\n\r");
         return 1;
     }
 
