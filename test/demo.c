@@ -42,45 +42,49 @@ SPDX-License-Identifier: MIT-0
 
 #include "map.h"
 
-uint16_t get_st(int16_t xo, int16_t yo, uint8_t q) {
+typedef struct { // Storage for subtile quadrants
+    uint16_t subtile_q[4];
+} subtile_q_maps;
+
+subtile_q_maps get_st(int16_t xo, int16_t yo) {
+    subtile_q_maps tmp = {{0,0,0,0}};
+
+    // Find center
     int8_t xc = 4-(xo/64);
     int8_t yc = 4-(yo/64);
 
-    // View extents
+    // View extents (Subtile Bounds)
     int8_t xmax = xc+2;
     int8_t xmin = xc-2;
     int8_t ymax = yc+2;
     int8_t ymin = yc-2;
 
+    // Build a binary supertile map (2x2)
     uint8_t map[8][8] = {0};
     for(int y = 0; y < 8; y++) {
         for(int x = 0; x < 8; x++) {
             if(x >= xmin && x < xmax && y >= ymin && y < ymax)
                 map[y][x] = 1;
-            //printf("%d", map[y][x]);
         }
-        //printf("\n");
     }
 
+    // Calculate quadrant subtile words
     int8_t qlxmin, qlxmax;
     int8_t qlymin, qlymax;
-    switch(q) {
-        case 0: qlxmin = 0; qlxmax = 3; qlymin = 0; qlymax = 3; break;
-        case 1: qlxmin = 4; qlxmax = 7; qlymin = 0; qlymax = 3; break;
-        case 2: qlxmin = 0; qlxmax = 3; qlymin = 4; qlymax = 7; break;
-        case 3: qlxmin = 4; qlxmax = 7; qlymin = 4; qlymax = 7; break;
-    }
-
-    uint16_t st_map = 0;
-    for(int y = 0; y <= 3; y++) {
-        for(int x = 0; x <= 3; x++) {
-            st_map |= (map[qlymin+y][qlxmin+x] << (3-x)) << (3-y)*4;
-            //printf("%d", (map[qlymin+y][qlxmin+x]));
+    for(int q = 0; q < 4; q++) {
+        switch(q) {
+            case 0: qlxmin = 0; qlxmax = 3; qlymin = 0; qlymax = 3; break;
+            case 1: qlxmin = 4; qlxmax = 7; qlymin = 0; qlymax = 3; break;
+            case 2: qlxmin = 0; qlxmax = 3; qlymin = 4; qlymax = 7; break;
+            case 3: qlxmin = 4; qlxmax = 7; qlymin = 4; qlymax = 7; break;
         }
-        //printf("\n");
+        for(int y = 0; y < 4; y++) {
+            for(int x = 0; x < 4; x++) {
+                tmp.subtile_q[q] |= (map[qlymin+y][qlxmin+x] << (3-x)) << (3-y)*4;
+            }
+        }
     }
-
-    return st_map;
+    return tmp;
 }
 
 int main(int argc, char *argv[]) {
@@ -146,20 +150,30 @@ int main(int argc, char *argv[]) {
                 if(xo < -tile_size/2)      { x_in++; xo =  tile_size/2-8; }
                 else if(xo > tile_size/2) { x_in--; xo = -tile_size/2+8; }
 
-                printf("Q0: ");
-                load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, get_st(xo,yo,0));
-                printf("Q1: ");
-                load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, get_st(xo,yo,1));
-                printf("Q2: ");
-                load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, get_st(xo,yo,2));
-                printf("Q3: ");
-                load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, get_st(xo,yo,3));
+                subtile_q_maps st = get_st(xo,yo);
+
+                if(st.subtile_q[0] != 0x0000) {
+                    printf("Q0: ");
+                    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, st.subtile_q[0]);
+                }
+                if(st.subtile_q[1] != 0x0000) {
+                    printf("Q1: ");
+                    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, st.subtile_q[1]);
+                }
+                if(st.subtile_q[2] != 0x0000) {
+                    printf("Q2: ");
+                    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, st.subtile_q[2]);
+                }
+                if(st.subtile_q[3] != 0x0000) {
+                    printf("Q3: ");
+                    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, st.subtile_q[3]);
+                }
                 printf("\n");
 
                 printf("%d, %d\n", xo, yo);
 
-                draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
-                draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));
+                //draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
+                //draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));
             }
         } 
 

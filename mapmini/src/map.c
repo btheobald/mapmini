@@ -34,16 +34,6 @@ float tiley2lat(int y, int z)
 }
 
 void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo) {
-    // I don't know why multiblocks cause problems
-    //if(way->tag_ids[0] == layer) {
-    //    for(uint16_t way_data = 0; way_data < way->blocks; way_data++) {
-    //        for(uint16_t way_block = 0; way_block < way->data[way_data].polygons; way_block++) {
-                //if(way->data[way_data].block[way_block].nodes >= 1) {
-                //    hagl_draw_polygon(way->data[way_data].block[way_block].nodes, (int16_t*)(way->data[way_data].block[way_block].coords), hagl_color(255,255,255));
-                //}
-    //        }
-    //    }
-    //}
 
     if(way->data[0].block[0].nodes > 1) {
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
@@ -93,50 +83,55 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
                     case 30: // Living Street
                         cl = hagl_hal_color(0xFF,0xFF,0xFF);
                         th = 2;
-                        goto tag_found;
+                        goto tag_found;         
                     case 8:  // Tertiary
                     case 35: // Tertiary Link
                         cl = hagl_hal_color(0xFF,0xFF,0x90);
                         th = 3;
-                        goto tag_found;         
-                    case 34: // Secondary Link
-                        cl = hagl_hal_color(0xFE,0x85,0x0C);
-                        th = 3;
-                        goto tag_found;
-                    case 27: // Primary Link
-                        cl = hagl_hal_color(0xDB,0x00,0x66);
-                        th = 3;
-                        goto tag_found;          
-                    case 24: // Trunk Link
-                        cl = hagl_hal_color(0x00,0x80,0x30);
-                        th = 3;
-                        goto tag_found;          
-                    case 23: // Motorway Link
-                        cl = hagl_hal_color(0x00,0x82,0xD6);
-                        th = 3;
-                        goto tag_found;         
+                        goto tag_found;    
                     case 12: // Secondary
-                        cl = hagl_hal_color(0xFE,0x85,0x0C);
+                    case 34: // Secondary Link
+                        cl = hagl_hal_color(0xBB,0x85,0x0F);
                         th = 3;
                         goto tag_found;
                     case 7: // Primary
-                        cl = hagl_hal_color(0x00,0x82,0xD6);
+                        cl = hagl_hal_color(0xFE,0x85,0x0C);
                         th = 4;
                         goto tag_found;
+                    case 27: // Primary Link
+                        cl = hagl_hal_color(0xFE,0x85,0x0C);
+                        th = 3;
+                        goto tag_found;   
                     case 11: // Trunk
-                        cl = hagl_hal_color(0x00,0x80,0x30);
+                        cl = hagl_hal_color(0x80,0x00,0x40);
                         th = 4;
                         goto tag_found;
+                    case 24: // Trunk Link
+                        cl = hagl_hal_color(0x80,0x00,0x40);
+                        th = 3;
+                        goto tag_found;    
                     case 21: // Motorway
-                        cl = hagl_hal_color(0x00,0x82,0xD6);
+                        cl = hagl_hal_color(0x40,0x00,0x00);
                         th = 3;
                         goto tag_found;
+                    case 23: // Motorway Link
+                        cl = hagl_hal_color(0x40,0x00,0x00);
+                        th = 3;
+                        goto tag_found;  
                     //default:
                         //printf("Tag %d Not Found: %hu\n", t, way->tag_ids[t]);
                 } 
             }
-
             tag_found:
+
+            // Rotate Data
+            /*for(int p = 0; p < way->data[0].block[0].nodes; p++) {
+                int32_t xt = way->data[0].block[0].coords[p][0];
+                int32_t yt = way->data[0].block[0].coords[p][1];
+                //printf("%d, %d, %d, %d", xt, yt, xt*cos(1)-yt*sin(1), yt*cos(1)+xt*sin(1));
+                way->data[0].block[0].coords[p][0] = xt*cos(0.05)-yt*sin(0.05);
+                way->data[0].block[0].coords[p][1] = yt*cos(0.05)+xt*sin(0.05);
+            }*/
 
             if(cl != 0) draw_varthick_line( xo+way->data[0].block[0].coords[i][0], 
                                 yo+way->data[0].block[0].coords[i][1],
@@ -251,7 +246,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     for(int way_id = 0; way_id < hdr.n_way_tags; way_id++) {
         str_len = get_uint8(&fbh);
         get_string(&fbh, hdr.way_tag_names[way_id], str_len);
-        printf("\t[%d]: %s\n\r", way_id, hdr.way_tag_names[way_id]);
+        //printf("\t[%d]: %s\n\r", way_id, hdr.way_tag_names[way_id]);
     }
 
     hdr.n_zoom_intervals = get_uint8(&fbh);
