@@ -37,7 +37,7 @@ SPDX-License-Identifier: MIT-0
 #include "rgb565.h"
 #include "fps.h"
 #include "font6x9.h"
-
+#include "thick.h"
 //#include "agg_hal.h"
 
 #include "map.h"
@@ -54,10 +54,10 @@ subtile_q_maps get_st(int16_t xo, int16_t yo) {
     int8_t yc = 4-(yo/64);
 
     // View extents (Subtile Bounds)
-    int8_t xmax = xc+2;
-    int8_t xmin = xc-2;
-    int8_t ymax = yc+2;
-    int8_t ymin = yc-2;
+    int8_t xmax = xc+4;
+    int8_t xmin = xc-4;
+    int8_t ymax = yc+4;
+    int8_t ymin = yc-4;
 
     // Build a binary supertile map (2x2)
     uint8_t map[8][8] = {0};
@@ -115,8 +115,10 @@ int main(int argc, char *argv[]) {
     uint32_t y_in = 5108;
     uint32_t z_in = 14;
 
-    int16_t xo = 0;
-    int16_t yo = 0;
+    float xo = 0;
+    float yo = 0;
+    
+    float rot = 0.0;
 
     const int tile_size = 256;
 
@@ -129,21 +131,47 @@ int main(int argc, char *argv[]) {
             if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_ESCAPE) {
                     quit = true;
-                } else if (event.key.keysym.sym == SDLK_LEFT) {
-                    hagl_clear_screen();
-                    xo+=8;
-                } else if (event.key.keysym.sym == SDLK_RIGHT) {
-                    hagl_clear_screen();
-                    xo-=8;
-                } else if (event.key.keysym.sym == SDLK_UP) {
-                    hagl_clear_screen();
-                    yo+=8;
-                } else if (event.key.keysym.sym == SDLK_DOWN) {
-                    hagl_clear_screen();
-                    yo-=8;
-                } else {                    
-                    current_demo = (current_demo + 1) % 12;        
                 }
+                
+                int8_t xc = 0;
+                int8_t yc = 0;
+                if (event.key.keysym.sym == SDLK_a) {
+                    hagl_clear_screen();
+                    xc = 8;
+                } else if (event.key.keysym.sym == SDLK_d) {
+                    hagl_clear_screen();
+                    xc = -8;
+                }
+                
+                if (event.key.keysym.sym == SDLK_w) {
+                    hagl_clear_screen();
+                    yc = 8;
+                } else if (event.key.keysym.sym == SDLK_s) {
+                    hagl_clear_screen();
+                    yc = -8;
+                } 
+                
+                xo+=floor(xc*cos(-rot)-yc*sin(-rot));
+                yo+=floor(xc*sin(-rot)+yc*cos(-rot));
+                
+                if (event.key.keysym.sym == SDLK_q) {
+                    hagl_clear_screen();
+                    rot+=M_PI/157;
+                } else if (event.key.keysym.sym == SDLK_e) {
+                    hagl_clear_screen();
+                    rot-=M_PI/157;
+                } else if (event.key.keysym.sym == SDLK_r) {
+                    hagl_clear_screen();
+                    rot=0;
+                }
+                if(rot > M_PI)
+                  rot = -M_PI;
+                else if(rot < -M_PI)
+                  rot = M_PI;
+
+                draw_varthick_line(256,256,256+32*cos(rot),256+32*sin(rot), 2, hagl_color(255,0,0));
+                draw_varthick_line(256,256,256-32*sin(rot),256+32*cos(rot), 2, hagl_color(000,255,0));
+                draw_varthick_line(256,256,256,256-32, 2, hagl_color(000,100,255));
 
                 if(yo < -tile_size/2)      { y_in++; yo =  tile_size/2-8; }
                 else if(yo > tile_size/2) { y_in--; yo = -tile_size/2+8; }
@@ -154,23 +182,23 @@ int main(int argc, char *argv[]) {
 
                 if(st.subtile_q[0] != 0x0000) {
                     printf("Q0: ");
-                    load_map("scotland_roads.map", x_in,   y_in,    z_in, xo%tile_size,           yo%tile_size, st.subtile_q[0]);
+                    load_map("scotland_roads.map", x_in,   y_in,    z_in, (int32_t)xo%tile_size,           (int32_t)yo%tile_size, st.subtile_q[0], rot);
                 }
                 if(st.subtile_q[1] != 0x0000) {
                     printf("Q1: ");
-                    load_map("scotland_roads.map", x_in+1, y_in,    z_in, xo%tile_size+tile_size, yo%tile_size, st.subtile_q[1]);
+                    load_map("scotland_roads.map", x_in+1, y_in,    z_in, (int32_t)xo%tile_size+tile_size, (int32_t)yo%tile_size, st.subtile_q[1], rot);
                 }
                 if(st.subtile_q[2] != 0x0000) {
                     printf("Q2: ");
-                    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, xo%tile_size,           yo%tile_size+tile_size, st.subtile_q[2]);
+                    load_map("scotland_roads.map", x_in,   y_in+1,  z_in, (int32_t)xo%tile_size,           (int32_t)yo%tile_size+tile_size, st.subtile_q[2], rot);
                 }
                 if(st.subtile_q[3] != 0x0000) {
                     printf("Q3: ");
-                    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, xo%tile_size+tile_size, yo%tile_size+tile_size, st.subtile_q[3]);
+                    load_map("scotland_roads.map", x_in+1, y_in+1,  z_in, (int32_t)xo%tile_size+tile_size, (int32_t)yo%tile_size+tile_size, st.subtile_q[3], rot);
                 }
                 printf("\n");
 
-                printf("%d, %d\n", xo, yo);
+                printf("%f, %f, %f\n", xo, yo, rot);
 
                 //draw_varthick_line(xo%tile_size, yo%tile_size+tile_size, xo%tile_size+DISPLAY_WIDTH, yo%tile_size+tile_size, 2, hagl_hal_color(0,255,255));
                 //draw_varthick_line(xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size, xo%tile_size+DISPLAY_WIDTH/2, yo%tile_size+DISPLAY_HEIGHT, 2, hagl_hal_color(0,255,255));

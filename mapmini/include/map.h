@@ -33,7 +33,7 @@ typedef struct _mapsforge_file_header {
     mapsforge_zoom_interval zoom_conf[3];
 } mapsforge_file_header;
 
-int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t x0, int16_t y0, uint16_t st);
+int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t x0, int16_t y0, uint16_t st, float rot);
 int long2tilex(double lon, int z);
 int lat2tiley(double lat, int z);
 float tilex2long(int x, int z);
