@@ -132,7 +132,7 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
         }
 
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
-            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i+1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i+1][1])){
+            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i-1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i-1][1])){
 
             if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i][0], 
                                             way->data[0].block[0].coords[i][1],
@@ -140,6 +140,8 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
                                             way->data[0].block[0].coords[i+1][1],
                                             th, cl);
             }
+
+            //hagl_flush();
 
             /*if(cl != 0) hagl_draw_line(way->data[0].block[0].coords[i][0], 
                                        way->data[0].block[0].coords[i][1],
