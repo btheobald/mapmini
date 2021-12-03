@@ -55,10 +55,10 @@ subtile_q_maps get_st(int16_t xo, int16_t yo, int16_t size) {
     int8_t yc = (4-4*yo/size);
 
     // View extents (Subtile Bounds)
-    int8_t xmax = xc+1;
-    int8_t xmin = xc-1;
-    int8_t ymax = yc+1;
-    int8_t ymin = yc-1;
+    int8_t xmax = xc+3;
+    int8_t xmin = xc-3;
+    int8_t ymax = yc+3;
+    int8_t ymin = yc-3;
 
     // Build a binary supertile map (2x2)
     uint8_t map[8][8] = {0};
