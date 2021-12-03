@@ -132,7 +132,7 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
         }
 
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
-            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i-1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i-1][1])){
+            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i+1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i+1][1])){
 
             if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i][0], 
                                             way->data[0].block[0].coords[i][1],
@@ -141,13 +141,11 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
                                             th, cl);
             }
 
-            //hagl_flush();
-
             /*if(cl != 0) hagl_draw_line(way->data[0].block[0].coords[i][0], 
                                        way->data[0].block[0].coords[i][1],
                                        way->data[0].block[0].coords[i+1][0],
                                        way->data[0].block[0].coords[i+1][1], cl);
-            } */          
+            } */         
         }
     }   
 }
@@ -334,7 +332,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     //printf("First Way Offset: %lu - %lu\n\r", first_way_offset, first_way_file_addr);
     file_seek(&fbh, first_way_file_addr);                                   
 
-    int ways_to_draw = ways[12]+ways[13];//+ways[14]+ways[15];
+    int ways_to_draw = ways[12]+ways[13]+ways[14]+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     
