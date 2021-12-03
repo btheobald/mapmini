@@ -33,7 +33,7 @@ float tiley2lat(int y, int z)
 	return 180.0 / M_PI * atan(0.5 * (exp(n) - exp(-n)));
 }
 
-void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo, float rot) {
+void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo, float rot, uint16_t size) {
 
     if(way->data[0].block[0].nodes > 1) {
       
@@ -124,21 +124,21 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
 
         // Rotate Data
         for(int p = 0; p < way->data[0].block[0].nodes; p++) {
-            int32_t xt = xo+way->data[0].block[0].coords[p][0]-256;
-            int32_t yt = yo+way->data[0].block[0].coords[p][1]-256;
+            int32_t xt = xo+way->data[0].block[0].coords[p][0]-DISPLAY_WIDTH/2;
+            int32_t yt = yo+way->data[0].block[0].coords[p][1]-DISPLAY_HEIGHT/2;
             //printf("%d, %d, %d, %d", xt, yt, xt*cos(1)-yt*sin(1), yt*cos(1)+xt*sin(1));
-            way->data[0].block[0].coords[p][0] = (float)xt*cos(rot)-(float)yt*sin(rot)+256;
-            way->data[0].block[0].coords[p][1] = (float)yt*cos(rot)+(float)xt*sin(rot)+256;
+            way->data[0].block[0].coords[p][0] = xt*cos(rot)-yt*sin(rot)+DISPLAY_WIDTH/2;
+            way->data[0].block[0].coords[p][1] = yt*cos(rot)+xt*sin(rot)+DISPLAY_HEIGHT/2;
         }
 
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
             if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i+1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i+1][1])){
 
             if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i][0], 
-                                way->data[0].block[0].coords[i][1],
-                                way->data[0].block[0].coords[i+1][0],
-                                way->data[0].block[0].coords[i+1][1],
-                                th, cl);
+                                            way->data[0].block[0].coords[i][1],
+                                            way->data[0].block[0].coords[i+1][0],
+                                            way->data[0].block[0].coords[i+1][1],
+                                            th, cl);
             }
 
             /*if(cl != 0) hagl_draw_line(way->data[0].block[0].coords[i][0], 
@@ -150,7 +150,7 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
     }   
 }
 
-int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t xo, int16_t yo, uint16_t st, float rot) {
+int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_t xo, int16_t yo, uint16_t st, float rot, float size) {
     fb_handler fbh;
     if(init_buffer(&fbh, "scotland_roads.map")) {
         return 1;
@@ -332,7 +332,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     //printf("First Way Offset: %lu - %lu\n\r", first_way_offset, first_way_file_addr);
     file_seek(&fbh, first_way_file_addr);                                   
 
-    int ways_to_draw = ways[12]+ways[13]+ways[14]+ways[15];
+    int ways_to_draw = ways[12]+ways[13];//+ways[14]+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     
@@ -352,7 +352,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     int x_pix = lon_to_x(londiff*1000000, 1);
     int y_pix = lat_to_y(latdiff*1000000, 1);
     float x_mercator = ((float)x_pix/y_pix);
-    float fit_scale = y_pix/256.0f;
+    float fit_scale = y_pix/size;
     int x_fit = lon_to_x(londiff*1000000, x_mercator*fit_scale);
     int y_fit = lat_to_y(latdiff*1000000, fit_scale);
     
@@ -363,14 +363,14 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     for(int w = 0; w < ways_to_draw; w++) {
         way_size = get_way(&testway[w],&fbh,&a0, st, fit_scale, x_mercator);
         if(st & testway[w].subtile_bitmap)
-            g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo, yo, rot);
+            g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo+DISPLAY_WIDTH/2, yo+DISPLAY_HEIGHT/2, rot, size);
     }
 
     //printf("Size of Ways: %d\n\r", way_size);
     
-    printf("Arena: %d/%d\n\r", arena_free(&a0), ARENA_DEFAULT_SIZE);
+    //printf("Arena: %d/%d\n\r", arena_free(&a0), ARENA_DEFAULT_SIZE);
 
     file_close(&fbh);
 
-    return 0;
+    return arena_free(&a0);
 }
