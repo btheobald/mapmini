@@ -13,6 +13,7 @@ typedef struct _file_buffer_handler {
 int init_buffer(fb_handler * fbh, char * filename);
 void load_buffer(fb_handler * fbh);
 void relative_reset_buffer(fb_handler * fbh, uint16_t seek);
+uint16_t get_remaining_bytes(fb_handler * fbh);
 
 static inline void file_seek(fb_handler * fbh, uint32_t offset) { 
     fseek(fbh->fp, offset, SEEK_SET);

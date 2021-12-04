@@ -12,7 +12,7 @@ target_sources(hagl PRIVATE
     ${CMAKE_CURRENT_LIST_DIR}/hagl/src/tjpgd.c)
 target_include_directories(hagl PUBLIC ${CMAKE_CURRENT_LIST_DIR}/hagl/include)
 set_property(TARGET hagl PROPERTY C_STANDARD 99)
-set_target_properties(hagl PROPERTIES COMPILE_OPTIONS "-m32" LINK_FLAGS "-m32")
+set_target_properties(hagl PROPERTIES COMPILE_OPTIONS "-m32" LINK_FLAGS "-m32 -flto")
 target_link_libraries(hagl PUBLIC hagl_hal)
 
 add_subdirectory(hagl_sdl2)

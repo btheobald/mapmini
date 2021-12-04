@@ -23,7 +23,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     //printf("Layer: %d -  ", wp->osm_layer);
     wp->n_tags = (special & 0x0f);
 
-    wp->tag_ids = (uint8_t*)arena_malloc(arena,sizeof(uint8_t)*wp->n_tags);
+    wp->tag_ids = arena_malloc(arena,sizeof(uint8_t)*wp->n_tags);
     //printf("Tags: %d -  ", wp->n_tags);
 
     for(int tag = 0; tag < wp->n_tags; tag++) {
@@ -36,25 +36,25 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
 
     if(wp->flags & 0x80) { // Way Name
         uint8_t len = get_uint8(fbh);
-        wp->name = (char*)arena_malloc(arena,sizeof(char)*len+1);
+        wp->name = arena_malloc(arena,sizeof(char)*len+1);
         get_string(fbh, wp->name, len);
         //printf("Name: %s, ", wp->name);
     }
     if(wp->flags & 0x40) { // House Number
         uint8_t len = get_uint8(fbh);
-        wp->house = (char*)arena_malloc(arena,sizeof(char)*len+1);
+        wp->house = arena_malloc(arena,sizeof(char)*len+1);
         get_string(fbh, wp->house, len);
         //printf("House: %s, ", wp->house);
     }
     if(wp->flags & 0x20) { // Reference
         uint8_t len = get_uint8(fbh);
-        wp->reference = (char*)arena_malloc(arena,sizeof(char)*len+1);
+        wp->reference = arena_malloc(arena,sizeof(char)*len+1);
         get_string(fbh, wp->reference, len);
         //printf("Ref: %s, ", wp->reference);
     }
     if(wp->flags & 0x10) { // Label Position
-        wp->label_off[0] = get_vbe_int(fbh);
-        wp->label_off[1] = get_vbe_int(fbh);
+        wp->label_off.x = get_vbe_int(fbh);
+        wp->label_off.y = get_vbe_int(fbh);
         //printf("LabelPos %d %d ",  wp->label_off[0],  wp->label_off[1]);
     }
     if(wp->flags & 0x08) { // Number of Way Data Blocks
@@ -62,27 +62,29 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     } else {
         wp->blocks = 1;
     }
-    wp->data = (way_data*)arena_malloc(arena,sizeof(way_data)*wp->blocks);
+    wp->data = arena_malloc(arena,sizeof(way_data)*wp->blocks);
 
     //printf("%d Blocks ", wp->blocks);
 
     for(int wdb = 0; wdb < wp->blocks; wdb++) {
         wp->data[wdb].polygons = (uint32_t)get_vbe_uint(fbh);
         //printf("%d Polygons ", wp->data[wdb].polygons);
-        wp->data[wdb].block = (way_coord_blk*)arena_malloc(arena,sizeof(way_coord_blk)*wp->data[wdb].polygons);
+        wp->data[wdb].block = arena_malloc(arena,sizeof(way_coord_blk)*wp->data[wdb].polygons);
         int32_t pd_lon, pd_lat;
         int32_t lon, lat;
         for(int wcb = 0; wcb < wp->data[wdb].polygons; wcb++) {
             wp->data[wdb].block[wcb].nodes = (uint32_t)get_vbe_uint(fbh);
             //printf("%d Nodes ", wp->data[wdb].block[wcb].nodes);
-            wp->data[wdb].block[wcb].coords = (way_coord*)arena_malloc(arena,sizeof(way_coord)*wp->data[wdb].block[wcb].nodes);
+            wp->data[wdb].block[wcb].coords = arena_malloc(arena,sizeof(way_coord)*wp->data[wdb].block[wcb].nodes);
             
+            printf("sizeof: %016llX, %d, %d\n", wp->data[wdb].block[wcb].coords, sizeof(way_coord)*wp->data[wdb].block[wcb].nodes, wp->data[wdb].block[wcb].nodes);
+
             // Get Origin
             lat = get_vbe_int(fbh);
             lon = get_vbe_int(fbh);
                         
-            wp->data[wdb].block[wcb].coords[0][1] = -lat_to_y(lat, scale);
-            wp->data[wdb].block[wcb].coords[0][0] = lon_to_x(lon, scale*x_mercator);
+            wp->data[wdb].block[wcb].coords[0].y = -lat_to_y(lat, scale);
+            wp->data[wdb].block[wcb].coords[0].x = lon_to_x(lon, scale*x_mercator);
             //printf("%d ", wp->data[wdb].block[wcb].coords[0][0]);
             //printf("%d ", wp->data[wdb].block[wcb].coords[0][1]);
 
@@ -92,8 +94,8 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
                 for(int wc = 1; wc < wp->data[wdb].block[wcb].nodes; wc++) {
                     lat += get_vbe_int(fbh);
                     lon += get_vbe_int(fbh);
-                    wp->data[wdb].block[wcb].coords[wc][1] = -lat_to_y(lat, scale);
-                    wp->data[wdb].block[wcb].coords[wc][0] = lon_to_x(lon, scale*x_mercator);
+                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat, scale);
+                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon, scale*x_mercator);
                     
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
@@ -114,8 +116,8 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
                     pd_lat = d_lat;
                     pd_lon = d_lon;
                     
-                    wp->data[wdb].block[wcb].coords[wc][1] = -lat_to_y(lat, scale);
-                    wp->data[wdb].block[wcb].coords[wc][0] = lon_to_x(lon, scale*x_mercator);
+                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat, scale);
+                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon, scale*x_mercator);
                     
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);

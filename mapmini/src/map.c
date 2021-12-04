@@ -33,87 +33,87 @@ float tiley2lat(int y, int z)
 	return 180.0 / M_PI * atan(0.5 * (exp(n) - exp(-n)));
 }
 
-void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16_t yo, float rot, uint16_t size) {
+void g_draw_way(way_prop * way, color_t colour, uint8_t layer, int16_t xo, int16_t yo, float rot, uint16_t size) {
 
     if(way->data[0].block[0].nodes > 1) {
       
-        uint16_t cl = hagl_hal_color(100,100,100);
+        color_t cl = hagl_color(100,100,100);
         uint8_t th = 1;
 
         for(uint8_t t = 0; t < way->n_tags; t++) {
             switch(((uint8_t*)way->tag_ids)[t]) {
                 case 26: // Pedestrian
                 case 13: // Steps
-                    cl = hagl_hal_color(0xE5,0xE0,0xC2);
+                    cl = hagl_color(0xE5,0xE0,0xC2);
                     th = 1;
                     goto tag_found;
                 case 3: // Footway
                 case 4: // Path
-                    cl = hagl_hal_color(0xAA,0x00,0x00);
+                    cl = hagl_color(0xAA,0x00,0x00);
                     th = 1;
                     goto tag_found;
                 case 2: // Track
-                    cl = hagl_hal_color(0xFF,0xFA,0xF2);
+                    cl = hagl_color(0xFF,0xFA,0xF2);
                     th = 1;
                     goto tag_found;                    
                 case 14: // Cycleway
-                    cl = hagl_hal_color(0xFF,0xF2,0xDE);
+                    cl = hagl_color(0xFF,0xF2,0xDE);
                     th = 1;
                     goto tag_found;
                 case 32: // Bridleway
-                    cl = hagl_hal_color(0xD3,0xCB,0x98);
+                    cl = hagl_color(0xD3,0xCB,0x98);
                     th = 1;
                     goto tag_found;           
                 case 0: // Service
-                    cl = hagl_hal_color(0xFF,0xFF,0xFF);
+                    cl = hagl_color(0xFF,0xFF,0xFF);
                     th = 1;
                     goto tag_found;          
                 case 28: // Construction
-                    cl = hagl_hal_color(0xD0,0xD0,0xD0);
+                    cl = hagl_color(0xD0,0xD0,0xD0);
                     th = 1;
                     goto tag_found;    
                 case 64: // Road
-                    cl = hagl_hal_color(0xD0,0xD0,0xD0);
+                    cl = hagl_color(0xD0,0xD0,0xD0);
                     th = 2;
                     goto tag_found;              
                 case 1: // Residential
                 case 6: // Unclassified
                 case 30: // Living Street
-                    cl = hagl_hal_color(0xFF,0xFF,0xFF);
+                    cl = hagl_color(0xFF,0xFF,0xFF);
                     th = 2;
                     goto tag_found;         
                 case 8:  // Tertiary
                 case 35: // Tertiary Link
-                    cl = hagl_hal_color(0xFF,0xFF,0x90);
+                    cl = hagl_color(0xFF,0xFF,0x90);
                     th = 3;
                     goto tag_found;    
                 case 12: // Secondary
                 case 34: // Secondary Link
-                    cl = hagl_hal_color(0xBB,0x85,0x0F);
+                    cl = hagl_color(0xBB,0x85,0x0F);
                     th = 3;
                     goto tag_found;
                 case 7: // Primary
-                    cl = hagl_hal_color(0xFE,0x85,0x0C);
+                    cl = hagl_color(0xFE,0x85,0x0C);
                     th = 4;
                     goto tag_found;
                 case 27: // Primary Link
-                    cl = hagl_hal_color(0xFE,0x85,0x0C);
+                    cl = hagl_color(0xFE,0x85,0x0C);
                     th = 3;
                     goto tag_found;   
                 case 11: // Trunk
-                    cl = hagl_hal_color(0x80,0x00,0x40);
+                    cl = hagl_color(0x80,0x00,0x40);
                     th = 4;
                     goto tag_found;
                 case 24: // Trunk Link
-                    cl = hagl_hal_color(0x80,0x00,0x40);
+                    cl = hagl_color(0x80,0x00,0x40);
                     th = 3;
                     goto tag_found;    
                 case 21: // Motorway
-                    cl = hagl_hal_color(0x40,0x00,0x00);
+                    cl = hagl_color(0x40,0x00,0x00);
                     th = 3;
                     goto tag_found;
                 case 23: // Motorway Link
-                    cl = hagl_hal_color(0x40,0x00,0x00);
+                    cl = hagl_color(0x40,0x00,0x00);
                     th = 3;
                     goto tag_found;  
                 //default:
@@ -124,20 +124,20 @@ void g_draw_way(way_prop * way, uint8_t colour, uint8_t layer, int16_t xo, int16
 
         // Rotate Data
         for(int p = 0; p < way->data[0].block[0].nodes; p++) {
-            int32_t xt = xo+way->data[0].block[0].coords[p][0]-DISPLAY_WIDTH/2;
-            int32_t yt = yo+way->data[0].block[0].coords[p][1]-DISPLAY_HEIGHT/2;
+            int32_t xt = xo+way->data[0].block[0].coords[p].x-DISPLAY_WIDTH/2;
+            int32_t yt = yo+way->data[0].block[0].coords[p].y-DISPLAY_HEIGHT/2;
             //printf("%d, %d, %d, %d", xt, yt, xt*cos(1)-yt*sin(1), yt*cos(1)+xt*sin(1));
-            way->data[0].block[0].coords[p][0] = xt*cos(rot)-yt*sin(rot)+DISPLAY_WIDTH/2;
-            way->data[0].block[0].coords[p][1] = yt*cos(rot)+xt*sin(rot)+DISPLAY_HEIGHT/2;
+            way->data[0].block[0].coords[p].x = xt*cos(rot)-yt*sin(rot)+DISPLAY_WIDTH/2;
+            way->data[0].block[0].coords[p].y = yt*cos(rot)+xt*sin(rot)+DISPLAY_HEIGHT/2;
         }
 
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
-            if(!(way->data[0].block[0].coords[i][0] == way->data[0].block[0].coords[i+1][0] && way->data[0].block[0].coords[i][1] == way->data[0].block[0].coords[i+1][1])){
+            if(!(way->data[0].block[0].coords[i].x == way->data[0].block[0].coords[i+1].x && way->data[0].block[0].coords[i].y == way->data[0].block[0].coords[i+1].y)){
 
-            if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i][0], 
-                                            way->data[0].block[0].coords[i][1],
-                                            way->data[0].block[0].coords[i+1][0],
-                                            way->data[0].block[0].coords[i+1][1],
+            if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i].x, 
+                                            way->data[0].block[0].coords[i].y,
+                                            way->data[0].block[0].coords[i+1].x,
+                                            way->data[0].block[0].coords[i+1].y,
                                             th, cl);
             }
 

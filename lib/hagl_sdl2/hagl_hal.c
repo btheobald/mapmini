@@ -33,12 +33,15 @@ SPDX-License-Identifier: MIT
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <rgb565.h>
+#include <rgb332.h>
 #include <SDL2/SDL.h>
 #include <bitmap.h>
 #include <window.h>
 
 #include "hagl_hal.h"
+
+#define min(X,Y) (((X) < (Y)) ? (X) : (Y))
+#define max(X,Y) (((X) > (Y)) ? (X) : (Y))
 
 static SDL_Window *window = NULL;
 static SDL_Renderer *renderer = NULL;
@@ -86,12 +89,12 @@ bitmap_t *hagl_hal_init(void)
 
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
     window = SDL_CreateWindow(
-        "HAGL SDL2",
+        "MapMini Demo",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         DISPLAY_WIDTH*DISPLAY_SCALE,
         DISPLAY_HEIGHT*DISPLAY_SCALE,
-        0
+        SDL_WINDOW_ALLOW_HIGHDPI
     );
 
     if (NULL == window) {
@@ -112,7 +115,7 @@ bitmap_t *hagl_hal_init(void)
 
     texture = SDL_CreateTexture(
         renderer,
-        SDL_PIXELFORMAT_RGB565,
+        SDL_PIXELFORMAT_RGB332,
         SDL_TEXTUREACCESS_STATIC,
         DISPLAY_WIDTH,
         DISPLAY_HEIGHT
@@ -168,6 +171,5 @@ void hagl_hal_close(void)
 
 color_t hagl_hal_color(uint8_t r, uint8_t g, uint8_t b)
 {
-    color_t color = rgb565(r, g, b);
-    return (color >> 8) | (color << 8);
+    return rgb332(r, g, b);
 }

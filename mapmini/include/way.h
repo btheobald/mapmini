@@ -6,7 +6,10 @@
 #include "parse.h"
 #include "memory.h"
 
-typedef int16_t way_coord[2];
+typedef struct _way_coord {
+    uint16_t x;
+    uint16_t y;
+} way_coord;
 
 typedef struct _way_coord_blk { 
     uint16_t nodes;

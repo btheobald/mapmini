@@ -46,8 +46,8 @@ extern "C" {
 /* HAL must provide display dimensions and depth. */
 #define DISPLAY_WIDTH   (512)
 #define DISPLAY_HEIGHT  (512)
-#define DISPLAY_SCALE   (1)
-#define DISPLAY_DEPTH   (16)
+#define DISPLAY_SCALE   (2)
+#define DISPLAY_DEPTH   (8)
 
 /* These are the optional features this HAL provides. */
 #define HAGL_HAS_HAL_INIT
@@ -63,7 +63,7 @@ extern "C" {
 // #define HAGL_HAS_HAL_SCALE_BLIT
 
 /** HAL must provide typedef for colors. This HAL uses RGB565. */
-typedef uint16_t color_t;
+typedef uint8_t color_t;
 
 /**
  * @brief Draw a single pixel
