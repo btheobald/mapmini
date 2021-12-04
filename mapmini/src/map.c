@@ -10,6 +10,7 @@
 #include "hagl.h"
 #include "hagl_hal.h"
 #include "thick.h"
+#include "aa.h"
 
 #define MAPSFORGE_MAGIC_STRING "mapsforge binary OSM"
 
@@ -129,10 +130,20 @@ void g_draw_way(way_prop * way, color_t colour, uint8_t layer, int16_t xo, int16
             //printf("%d, %d, %d, %d", xt, yt, xt*cos(1)-yt*sin(1), yt*cos(1)+xt*sin(1));
             way->data[0].block[0].coords[p].x = xt*cos(rot)-yt*sin(rot)+DISPLAY_WIDTH/2;
             way->data[0].block[0].coords[p].y = yt*cos(rot)+xt*sin(rot)+DISPLAY_HEIGHT/2;
+
+            //printf("%d, %d ", way->data[0].block[0].coords[p].x, way->data[0].block[0].coords[p].y);
         }
+        //printf("\n");
 
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
             if(!(way->data[0].block[0].coords[i].x == way->data[0].block[0].coords[i+1].x && way->data[0].block[0].coords[i].y == way->data[0].block[0].coords[i+1].y)){
+
+            /*if(cl != 0) draw_line_antialias(way->data[0].block[0].coords[i].x, 
+                                            way->data[0].block[0].coords[i].y,
+                                            way->data[0].block[0].coords[i+1].x,
+                                            way->data[0].block[0].coords[i+1].y,
+                                            cl);
+            }*/
 
             if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i].x, 
                                             way->data[0].block[0].coords[i].y,

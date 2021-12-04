@@ -77,7 +77,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
             //printf("%d Nodes ", wp->data[wdb].block[wcb].nodes);
             wp->data[wdb].block[wcb].coords = arena_malloc(arena,sizeof(way_coord)*wp->data[wdb].block[wcb].nodes);
             
-            printf("sizeof: %016llX, %d, %d\n", wp->data[wdb].block[wcb].coords, sizeof(way_coord)*wp->data[wdb].block[wcb].nodes, wp->data[wdb].block[wcb].nodes);
+            //printf("sizeof: %016llX, %d, %d\n", wp->data[wdb].block[wcb].coords, sizeof(way_coord)*wp->data[wdb].block[wcb].nodes, wp->data[wdb].block[wcb].nodes);
 
             // Get Origin
             lat = get_vbe_int(fbh);

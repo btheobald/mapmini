@@ -7,8 +7,8 @@
 #include "memory.h"
 
 typedef struct _way_coord {
-    uint16_t x;
-    uint16_t y;
+    int16_t x;
+    int16_t y;
 } way_coord;
 
 typedef struct _way_coord_blk { 

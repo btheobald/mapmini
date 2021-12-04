@@ -39,6 +39,7 @@ SPDX-License-Identifier: MIT-0
 #include "fps.h"
 #include "font6x9.h"
 #include "thick.h"
+#include "aa.h"
 //#include "agg_hal.h"
 
 #include "map.h"
@@ -55,10 +56,10 @@ subtile_q_maps get_st(int16_t xo, int16_t yo, int16_t size) {
     int8_t yc = (4-4*yo/size);
 
     // View extents (Subtile Bounds)
-    int8_t xmax = xc+3;
-    int8_t xmin = xc-3;
-    int8_t ymax = yc+3;
-    int8_t ymin = yc-3;
+    int8_t xmax = xc+1024/size;
+    int8_t xmin = xc-1024/size;
+    int8_t ymax = yc+1024/size;
+    int8_t ymin = yc-1024/size;
 
     // Build a binary supertile map (2x2)
     uint8_t map[8][8] = {0};
@@ -93,10 +94,7 @@ subtile_q_maps get_st(int16_t xo, int16_t yo, int16_t size) {
 int main(int argc, char *argv[]) {
     hagl_init();
     hagl_set_clip_window(1,1,DISPLAY_WIDTH-1,DISPLAY_HEIGHT-1);
-    //hagl_set_clip_window(DISPLAY_WIDTH/4,DISPLAY_HEIGHT/4,DISPLAY_WIDTH-DISPLAY_WIDTH/4,DISPLAY_HEIGHT-DISPLAY_HEIGHT/4);
-    //agg_hal_init();
-    //agg_hal_test();
-    //agg_hal_flush();
+
     srand(time(0));
 
     uint32_t flush_delay = 1000 / 30; /* 30 fps */
@@ -117,25 +115,28 @@ int main(int argc, char *argv[]) {
     uint32_t y_in = 5108;
     uint32_t z_in = 14;
 
+    float inc = 4;
+
     float xo = 0;
     float yo = 0;
     
     float rot = 0.0;
 
-    int tile_size = 256;
+    int tile_size = 512;
     int update = false;
 
     printf("Arena:\n");
 
     update = 1;
 
+    SDL_Event event;
+
     while (!quit) {
         
-        int8_t xc = 0;
-        int8_t yc = 0;
+        float xc = 0;
+        float yc = 0;
 
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
+        while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
                 quit = true;
             }
@@ -146,46 +147,46 @@ int main(int argc, char *argv[]) {
                 switch(event.key.keysym.sym) {
                     case SDLK_ESCAPE: quit = true; break;
                     case SDLK_a:
-                    case SDLK_LEFT: xc = 8; break;
+                    case SDLK_LEFT: xc = inc; break;
                     case SDLK_d:
-                    case SDLK_RIGHT: xc = -8; break;
+                    case SDLK_RIGHT: xc = -inc; break;
                     case SDLK_w:
-                    case SDLK_UP: yc = 8; break;
+                    case SDLK_UP: yc = inc; break;
                     case SDLK_s:
-                    case SDLK_DOWN: yc = -8; break;
-                    case SDLK_q: rot += M_PI/100; break;
-                    case SDLK_e: rot -= M_PI/100; break;
+                    case SDLK_DOWN: yc = -inc; break;
+                    case SDLK_q: rot += M_PI/314; break;
+                    case SDLK_e: rot -= M_PI/314; break;
                     case SDLK_r: rot  = 0; break;
                     case SDLK_t: tile_size += 5; break;
                     case SDLK_g: tile_size -= 5; break;
                     case SDLK_b: tile_size  = 256; break;
                 }
+
+                // Check rotation bounds
+                if(rot > M_PI)
+                    rot = -M_PI;
+                else if(rot < -M_PI)
+                    rot = M_PI;
+
+                // Check zoom bounds
+                if(tile_size < 64)
+                    tile_size = 64;
+                else if(tile_size > 1024)
+                    tile_size = 1024;
+
+                // Apply transformation and rotation
+                xo+=xc*cos(-rot)-yc*sin(-rot);
+                yo+=xc*sin(-rot)+yc*cos(-rot);
+
+                // Check offset bounds, change tiles if needed
+                if(yo < -tile_size/2)      { y_in++; yo =  tile_size/2; }
+                else if(yo > tile_size/2)  { y_in--; yo = -tile_size/2; }
+                if(xo < -tile_size/2)      { x_in++; xo =  tile_size/2; }
+                else if(xo > tile_size/2)  { x_in--; xo = -tile_size/2; }
             }
         } 
 
         if(update) {
-            // Check rotation bounds
-            if(rot > M_PI)
-                rot = -M_PI;
-            else if(rot < -M_PI)
-                rot = M_PI;
-
-            // Check zoom bounds
-            if(tile_size < 64)
-                tile_size = 64;
-            else if(tile_size > 1024)
-                tile_size = 1024;
-
-            // Transform offset
-            xo+=floor(xc*cos(-rot)-yc*sin(-rot));
-            yo+=floor(xc*sin(-rot)+yc*cos(-rot));
-
-            // Check offset bounds, change tiles if needed
-            if(yo < -tile_size/2)      { y_in++; yo =  tile_size/2-8; }
-            else if(yo > tile_size/2)  { y_in--; yo = -tile_size/2+8; }
-            if(xo < -tile_size/2)      { x_in++; xo =  tile_size/2-8; }
-            else if(xo > tile_size/2)  { x_in--; xo = -tile_size/2+8; }
-
             hagl_clear_screen();
 
             update = false;
@@ -193,15 +194,6 @@ int main(int argc, char *argv[]) {
 
             uint32_t heap;
             uint32_t heap_total = 0;
-
-            uint16_t compass_x = 18;
-            uint16_t compass_y = DISPLAY_HEIGHT-18;
-            uint16_t compass_len = 16;
-            uint8_t compass_lw = 2;
-
-            draw_varthick_line(compass_x, compass_y, compass_x+compass_len*cos(rot), compass_y+compass_len*sin(rot), compass_lw, hagl_color(255,0,0));
-            draw_varthick_line(compass_x, compass_y, compass_x-compass_len*sin(rot), compass_y+compass_len*cos(rot), compass_lw, hagl_color(0,100,255));
-            draw_varthick_line(compass_x, compass_y, compass_x, compass_y-compass_len, compass_lw, hagl_color(0,255,0));
 
             if(st.subtile_q[0] != 0x0000) {
                 //printf("Q0: ");
@@ -227,7 +219,20 @@ int main(int argc, char *argv[]) {
                 heap_total += heap;
                 printf("%d ", heap);
             }
-            printf("%d\n", heap_total);
+            //printf("%d\n", heap_total);
+            printf("\n");
+
+            uint16_t compass_len = 10;
+            uint16_t border = 3;
+            uint16_t compass_x = compass_len+border;
+            uint16_t compass_y = DISPLAY_HEIGHT-compass_len-border;
+            uint8_t compass_lw = 2;
+
+            hagl_fill_circle(compass_x, compass_y, compass_len+2, hagl_color(0,0,0));
+            hagl_draw_circle(compass_x, compass_y, compass_len+2, hagl_color(255,255,255));
+
+            draw_line_antialias(compass_x, compass_y, compass_x-(compass_len-1)*sin(-rot), compass_y-(compass_len-1)*cos(-rot),  hagl_color(255,0,0));
+            draw_line_antialias(compass_x, compass_y, compass_x, compass_y-compass_len,  hagl_color(0,255,0));
         }
 
 
@@ -239,6 +244,5 @@ int main(int argc, char *argv[]) {
         }
     }
 
-    //agg_hal_close();
     return 0;
 }

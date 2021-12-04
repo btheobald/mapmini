@@ -8,12 +8,12 @@
 
 typedef struct {
     uint8_t *region;
-    uint64_t size;
-    uint64_t current;
+    size_t size;
+    size_t current;
 } arena_t;
 
-void  arena_init(arena_t * arena, uint64_t size);
-void* arena_malloc(arena_t * arena, uint64_t size);
-uint64_t arena_free(arena_t * arena);
+void  arena_init(arena_t * arena, size_t size);
+void* arena_malloc(arena_t * arena, size_t size);
+size_t arena_free(arena_t * arena);
 
 #endif
