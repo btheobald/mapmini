@@ -1,6 +1,8 @@
 This project aims to produce a low-footprint, high performance C parser and vector tile render based on the Mapsforge format for OpenStreetMap.
 
-Currently map loading is performed on discrete tiles, the demo app pieces multiple tiles together in each frame, as well as being subtile aware in order to further reduce memory footprint and only render what needs to be visible. The focus is on performance and visibility over eye-candy.
+![Example of the library running on an ESP32-C3](espc3.png)
+
+Map loading is performed on discrete tiles, the demo app pieces multiple tiles together in each frame, as well as being subtile aware in order to further reduce memory footprint and only render what needs to be visible. The focus is on performance and visibility over eye-candy.
 
 This was tested using a file generated using osmosis from raw OSM.PBF downloaded from geofabrik, configured to include only ways marked as highways, which reduces file-size by more than a factor of 10. This also makes the job of parsing the file substantially less complex. The parser currently ignores multipolygons.
 
