@@ -1,6 +1,6 @@
 This project aims to produce a low-footprint, high performance C parser and vector tile render based on the Mapsforge format for OpenStreetMap.
 
-![Example of the library running on an ESP32-C3](espc3.png)
+![Example of the library running on an ESP32-C3](espc3.jpg)
 
 Map loading is performed on discrete tiles, the demo app pieces multiple tiles together in each frame, as well as being subtile aware in order to further reduce memory footprint and only render what needs to be visible. The focus is on performance and visibility over eye-candy.
 
