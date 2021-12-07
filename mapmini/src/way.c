@@ -15,7 +15,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
 
     if(!(st & wp->subtile_bitmap)) {
         for(int i = 0; i<ds-2; i++) { get_uint8(fbh); } // Read through buffer.
-        return ds-2;
+        return 1;
     }
 
     uint8_t special = get_uint8(fbh);
@@ -27,7 +27,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     //printf("Tags: %d -  ", wp->n_tags);
 
     for(int tag = 0; tag < wp->n_tags; tag++) {
-        wp->tag_ids[tag] = get_vbe_uint(fbh);
+        wp->tag_ids[tag] = (uint8_t)get_vbe_uint(fbh);
         //printf("%u - ", wp->tag_ids[tag]);
     }
     //printf("\n");
@@ -36,19 +36,19 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
 
     if(wp->flags & 0x80) { // Way Name
         uint8_t len = get_uint8(fbh);
-        wp->name = arena_malloc(arena,sizeof(char)*len+1);
+        wp->name = arena_malloc(arena,sizeof(char)*(len+1));
         get_string(fbh, wp->name, len);
         //printf("Name: %s, ", wp->name);
     }
     if(wp->flags & 0x40) { // House Number
         uint8_t len = get_uint8(fbh);
-        wp->house = arena_malloc(arena,sizeof(char)*len+1);
+        wp->house = arena_malloc(arena,sizeof(char)*(len+1));
         get_string(fbh, wp->house, len);
         //printf("House: %s, ", wp->house);
     }
     if(wp->flags & 0x20) { // Reference
         uint8_t len = get_uint8(fbh);
-        wp->reference = arena_malloc(arena,sizeof(char)*len+1);
+        wp->reference = arena_malloc(arena,sizeof(char)*(len+1));
         get_string(fbh, wp->reference, len);
         //printf("Ref: %s, ", wp->reference);
     }

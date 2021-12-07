@@ -122,7 +122,7 @@ int main(int argc, char *argv[]) {
     
     float rot = 0.0;
 
-    int tile_size = 512;
+    int tile_size = 256;
     int update = false;
 
     printf("Arena:\n");
@@ -179,10 +179,10 @@ int main(int argc, char *argv[]) {
                 yo+=xc*sin(-rot)+yc*cos(-rot);
 
                 // Check offset bounds, change tiles if needed
-                if(yo < -tile_size/2)      { y_in++; yo =  tile_size/2; }
-                else if(yo > tile_size/2)  { y_in--; yo = -tile_size/2; }
-                if(xo < -tile_size/2)      { x_in++; xo =  tile_size/2; }
-                else if(xo > tile_size/2)  { x_in--; xo = -tile_size/2; }
+                if(yo < -tile_size/2)      { y_in++; yo = -inc+tile_size/2; }
+                else if(yo > tile_size/2)  { y_in--; yo = inc-tile_size/2; }
+                if(xo < -tile_size/2)      { x_in++; xo = -inc+tile_size/2; }
+                else if(xo > tile_size/2)  { x_in--; xo = inc-tile_size/2; }
             }
         } 
 
@@ -222,7 +222,7 @@ int main(int argc, char *argv[]) {
             //printf("%d\n", heap_total);
             printf("\n");
 
-            uint16_t compass_len = 10;
+            uint16_t compass_len = 32;
             uint16_t border = 3;
             uint16_t compass_x = compass_len+border;
             uint16_t compass_y = DISPLAY_HEIGHT-compass_len-border;
@@ -231,8 +231,10 @@ int main(int argc, char *argv[]) {
             hagl_fill_circle(compass_x, compass_y, compass_len+2, hagl_color(0,0,0));
             hagl_draw_circle(compass_x, compass_y, compass_len+2, hagl_color(255,255,255));
 
-            draw_line_antialias(compass_x, compass_y, compass_x-(compass_len-1)*sin(-rot), compass_y-(compass_len-1)*cos(-rot),  hagl_color(255,0,0));
-            draw_line_antialias(compass_x, compass_y, compass_x, compass_y-compass_len,  hagl_color(0,255,0));
+            draw_varthick_line(compass_x, compass_y, compass_x-(compass_len-1)*sin(-rot), compass_y-(compass_len-1)*cos(-rot), compass_lw, hagl_color(255,0,0));
+            //draw_varthick_line(compass_x, compass_y, compass_x, compass_y-compass_len, compass_lw, hagl_color(0,255,0));
+
+            hagl_fill_circle(compass_x, compass_y, 3, hagl_color(255,255,255));
         }
 
 

@@ -135,6 +135,7 @@ void g_draw_way(way_prop * way, color_t colour, uint8_t layer, int16_t xo, int16
         }
         //printf("\n");
 
+
         for(int i = 0; i < (way->data[0].block[0].nodes-1); i++) {
             if(!(way->data[0].block[0].coords[i].x == way->data[0].block[0].coords[i+1].x && way->data[0].block[0].coords[i].y == way->data[0].block[0].coords[i+1].y)){
 
@@ -145,18 +146,18 @@ void g_draw_way(way_prop * way, color_t colour, uint8_t layer, int16_t xo, int16
                                             cl);
             }*/
 
-            if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i].x, 
+            /*if(cl != 0) draw_varthick_line( way->data[0].block[0].coords[i].x, 
                                             way->data[0].block[0].coords[i].y,
                                             way->data[0].block[0].coords[i+1].x,
                                             way->data[0].block[0].coords[i+1].y,
                                             th, cl);
-            }
+            }*/
 
-            /*if(cl != 0) hagl_draw_line(way->data[0].block[0].coords[i][0], 
-                                       way->data[0].block[0].coords[i][1],
-                                       way->data[0].block[0].coords[i+1][0],
-                                       way->data[0].block[0].coords[i+1][1], cl);
-            } */         
+            if(cl != 0) hagl_draw_line(way->data[0].block[0].coords[i].x, 
+                                       way->data[0].block[0].coords[i].y,
+                                       way->data[0].block[0].coords[i+1].x,
+                                       way->data[0].block[0].coords[i+1].y, cl);
+            }         
         }
     }   
 }
@@ -343,7 +344,7 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     //printf("First Way Offset: %lu - %lu\n\r", first_way_offset, first_way_file_addr);
     file_seek(&fbh, first_way_file_addr);                                   
 
-    int ways_to_draw = ways[12]+ways[13]+ways[14]+ways[15];
+    int ways_to_draw = ways[12];//+ways[13]+ways[14]+ways[15];
     way_prop testway[ways_to_draw];
     uint32_t way_size = 0;
     
@@ -370,12 +371,20 @@ int load_map(char* filename, uint32_t x_in, uint32_t y_in, uint32_t z_in, int16_
     //printf("scale diff to: %d, %d\n", y_pix, x_pix);
     //printf("scale factors: %f, %f (%f)\n", fit_scale, x_mercator*fit_scale, x_mercator);
     //printf("fit diff tile: %d, %d\n", y_fit, x_fit);
-      
+
     for(int w = 0; w < ways_to_draw; w++) {
-        way_size = get_way(&testway[w],&fbh,&a0, st, fit_scale, x_mercator);
+        uint8_t rtn = get_way(&testway[w],&fbh,&a0, st, fit_scale, x_mercator);
+        if(rtn) { // Ignore way
+          if(w > 0) w--; 
+          ways_to_draw--;  
+        }
+    }
+
+    for(int w = 0; w < ways_to_draw; w++) {
         if(st & testway[w].subtile_bitmap)
             g_draw_way(&testway[w], 0, testway[w].tag_ids[0], xo+DISPLAY_WIDTH/2, yo+DISPLAY_HEIGHT/2, rot, size);
     }
+
 
     //printf("Size of Ways: %d\n\r", way_size);
     
