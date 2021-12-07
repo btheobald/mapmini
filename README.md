@@ -1,7 +1,9 @@
+## Mapmini
+
 This project aims to produce a low-footprint, high performance C parser and vector tile render based on the Mapsforge format for OpenStreetMap.
 Map loading is performed on discrete tiles, the demo app pieces multiple tiles together in each frame, as well as being subtile aware in order to further reduce memory footprint and only render what needs to be visible.
 
-ESP32-C3             |  Hosted Demo
+[ESP32-C3](https://github.com/btheobald/mapmini_esp32c3) |  Hosted Demo
 -------------------------|-------------------------
 <img src=espc3.jpg alt="Example of the library running on an ESP32-C3" width="500">|![Example of a rendered map](example.png)
 
