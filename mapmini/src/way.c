@@ -2,10 +2,9 @@
 #include "memory.h"
 #include <time.h>
 
-uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, float scale, float x_mercator) {
+uint32_t get_way_header(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st) {
     uint32_t ds = get_vbe_uint(fbh);
     //printf("Size: %d -  ", ds);
-
     if(fbh->buffer_pos + ds > FILE_READ_BUFFER_SIZE) {
         relative_reset_buffer(fbh, FILE_READ_BUFFER_SIZE - fbh->buffer_pos);
     }
@@ -15,7 +14,7 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
 
     if(!(st & wp->subtile_bitmap)) {
         for(int i = 0; i<ds-2; i++) { get_uint8(fbh); } // Read through buffer.
-        return 1;
+        return 0;
     }
 
     uint8_t special = get_uint8(fbh);
@@ -62,8 +61,14 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     } else {
         wp->blocks = 1;
     }
-    wp->data = arena_malloc(arena,sizeof(way_data)*wp->blocks);
 
+    return wp->blocks;
+}
+
+uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st) {
+    get_way_header(wp, fbh, arena, st);
+    
+    wp->data = arena_malloc(arena,sizeof(way_data)*wp->blocks);
     //printf("%d Blocks ", wp->blocks);
 
     for(int wdb = 0; wdb < wp->blocks; wdb++) {
@@ -83,8 +88,8 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
             lat = get_vbe_int(fbh);
             lon = get_vbe_int(fbh);
                         
-            wp->data[wdb].block[wcb].coords[0].y = -lat_to_y(lat, scale);
-            wp->data[wdb].block[wcb].coords[0].x = lon_to_x(lon, scale*x_mercator);
+            wp->data[wdb].block[wcb].coords[0].y = -lat_to_y(lat);// scale);
+            wp->data[wdb].block[wcb].coords[0].x = lon_to_x(lon);//, scale*x_mercator);
             //printf("%d ", wp->data[wdb].block[wcb].coords[0][0]);
             //printf("%d ", wp->data[wdb].block[wcb].coords[0][1]);
 
@@ -94,8 +99,8 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
                 for(int wc = 1; wc < wp->data[wdb].block[wcb].nodes; wc++) {
                     lat += get_vbe_int(fbh);
                     lon += get_vbe_int(fbh);
-                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat, scale);
-                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon, scale*x_mercator);
+                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat);//, scale);
+                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon);//, scale*x_mercator);
                     
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
@@ -116,8 +121,8 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
                     pd_lat = d_lat;
                     pd_lon = d_lon;
                     
-                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat, scale);
-                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon, scale*x_mercator);
+                    wp->data[wdb].block[wcb].coords[wc].y = -lat_to_y(lat);//, scale);
+                    wp->data[wdb].block[wcb].coords[wc].x = lon_to_x(lon);//;, scale*x_mercator);
                     
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][0]);
                     //printf("%d ", wp->data[wdb].block[wcb].coords[wc][1]);
@@ -131,10 +136,10 @@ uint32_t get_way(way_prop * wp, fb_handler * fbh, arena_t * arena, uint16_t st, 
     return 0; // No advance needed
 }
 
-int32_t lon_to_x(int32_t lon, float scale) {
-    return (MD_RAD(lon)*EARTH_R_M) / scale;
+int32_t lon_to_x(int32_t lon) {//, float scale) {
+    return (MD_RAD(lon)*EARTH_R_M) / 10;// / scale;
 }
 
-int32_t lat_to_y(int32_t lat, float scale) {
-    return (MD_RAD(lat)*EARTH_R_M) / scale;
+int32_t lat_to_y(int32_t lat) {//, float scale) {
+    return (MD_RAD(lat)*EARTH_R_M) / 10;// / scale;
 }

@@ -111,21 +111,22 @@ int main(int argc, char *argv[]) {
     hagl_clear_screen();
     uint32_t start = SDL_GetTicks();
 
-    uint32_t x_in = 8044;
-    uint32_t y_in = 5108;
-    uint32_t z_in = 14;
-
-    float inc = 4;
-
-    float xo = 0;
-    float yo = 0;
-    
     float rot = 0.0;
-
-    int tile_size = 256;
     int update = false;
+    
+    fb_handler fbh;
+    load_map_file(&fbh, "scotland_roads.map");
 
-    printf("Arena:\n");
+    mm_file_header_t mm_header;
+    load_map_header(&fbh, &mm_header);
+
+    arena_t mm_arena;
+    arena_init(&mm_arena, ARENA_DEFAULT_SIZE);
+
+    mm_view_params_t mm_view = {.x_offset = 0, .y_offset = 0, .rotation_cos = 0, .rotation_sin = 0, .subtile = 0xffff, .scale = 512};
+    mm_tile_coord_t mm_xyz = {.x = 8044, .y = 5108, .z = 14};
+
+    mm_tile_header mm_tile;
 
     update = 1;
 
@@ -133,8 +134,8 @@ int main(int argc, char *argv[]) {
 
     while (!quit) {
         
-        float xc = 0;
-        float yc = 0;
+        int8_t xc = 0;
+        int8_t yc = 0;
 
         while(SDL_PollEvent(&event)) {
             if (event.type == SDL_QUIT) {
@@ -142,24 +143,27 @@ int main(int argc, char *argv[]) {
             }
             if (event.type == SDL_KEYDOWN) {
                 update = true;
-                
+
+                xc = 0;
+                yc = 0;
+
                 // Process keypress
                 switch(event.key.keysym.sym) {
                     case SDLK_ESCAPE: quit = true; break;
                     case SDLK_a:
-                    case SDLK_LEFT: xc = inc; break;
+                    case SDLK_LEFT: xc = 4; break;
                     case SDLK_d:
-                    case SDLK_RIGHT: xc = -inc; break;
+                    case SDLK_RIGHT: xc = -4; break;
                     case SDLK_w:
-                    case SDLK_UP: yc = inc; break;
+                    case SDLK_UP: yc = 4; break;
                     case SDLK_s:
-                    case SDLK_DOWN: yc = -inc; break;
+                    case SDLK_DOWN: yc = -4; break;
                     case SDLK_q: rot += M_PI/314; break;
                     case SDLK_e: rot -= M_PI/314; break;
                     case SDLK_r: rot  = 0; break;
-                    case SDLK_t: tile_size += 5; break;
-                    case SDLK_g: tile_size -= 5; break;
-                    case SDLK_b: tile_size  = 256; break;
+                    case SDLK_t: mm_view.scale += 4; break;
+                    case SDLK_g: mm_view.scale -= 4; break;
+                    case SDLK_b: mm_view.scale  = 256; break;
                 }
 
                 // Check rotation bounds
@@ -168,21 +172,24 @@ int main(int argc, char *argv[]) {
                 else if(rot < -M_PI)
                     rot = M_PI;
 
+                mm_view.rotation_cos = cos(rot)*FIXED_POINT_SCALE;
+                mm_view.rotation_sin = sin(rot)*FIXED_POINT_SCALE;
+
                 // Check zoom bounds
-                if(tile_size < 64)
-                    tile_size = 64;
-                else if(tile_size > 1024)
-                    tile_size = 1024;
+                if(mm_view.scale < 64)
+                    mm_view.scale = 64;
+                else if(mm_view.scale > 1024)
+                    mm_view.scale = 1024;
 
                 // Apply transformation and rotation
-                xo+=xc*cos(-rot)-yc*sin(-rot);
-                yo+=xc*sin(-rot)+yc*cos(-rot);
+                mm_view.x_offset+=(xc*mm_view.rotation_cos-yc*mm_view.rotation_sin)/FIXED_POINT_SCALE;
+                mm_view.y_offset+=(xc*mm_view.rotation_sin+yc*mm_view.rotation_cos)/FIXED_POINT_SCALE;
 
                 // Check offset bounds, change tiles if needed
-                if(yo < -tile_size/2)      { y_in++; yo = -inc+tile_size/2; }
-                else if(yo > tile_size/2)  { y_in--; yo = inc-tile_size/2; }
-                if(xo < -tile_size/2)      { x_in++; xo = -inc+tile_size/2; }
-                else if(xo > tile_size/2)  { x_in--; xo = inc-tile_size/2; }
+                if(mm_view.y_offset < -mm_view.scale/2)      { mm_xyz.y++; mm_view.y_offset = -4+mm_view.scale/2; }
+                else if(mm_view.y_offset > mm_view.scale/2)  { mm_xyz.y--; mm_view.y_offset =  4-mm_view.scale/2; }
+                if(mm_view.x_offset < -mm_view.scale/2)      { mm_xyz.x++; mm_view.x_offset = -4+mm_view.scale/2; }
+                else if(mm_view.x_offset > mm_view.scale/2)  { mm_xyz.x--; mm_view.x_offset =  4-mm_view.scale/2; }
             }
         } 
 
@@ -190,37 +197,40 @@ int main(int argc, char *argv[]) {
             hagl_clear_screen();
 
             update = false;
-            subtile_q_maps st = get_st(xo,yo,tile_size);
+            subtile_q_maps st = get_st(mm_view.x_offset, mm_view.y_offset, mm_view.scale);
 
             uint32_t heap;
             uint32_t heap_total = 0;
 
-            if(st.subtile_q[0] != 0x0000) {
+            //if(st.subtile_q[0] != 0x0000) {
                 //printf("Q0: ");
-                heap = load_map("scotland_roads.map", x_in,   y_in,   z_in, (int32_t)xo-tile_size, (int32_t)yo-tile_size, st.subtile_q[0], rot, tile_size);
-                heap_total += heap;
-                printf("%d ", heap);
-            }
-            if(st.subtile_q[1] != 0x0000) {
+                //heap = load_map("scotland_roads.map", x_in,   y_in,   z_in, (int32_t)xo-tile_size, (int32_t)yo-tile_size, st.subtile_q[0], rot, tile_size);
+                //mm_view.subtile = st.subtile_q[0];
+
+                //printf("Arena Used: %d", heap);
+            //}
+            /*if(st.subtile_q[1] != 0x0000) {
                 //printf("Q1: ");
                 heap = load_map("scotland_roads.map", x_in+1, y_in,   z_in, (int32_t)xo,           (int32_t)yo-tile_size, st.subtile_q[1], rot, tile_size);
                 heap_total += heap;
-                printf("%d ", heap);
+                //printf("%d ", heap);
             }
             if(st.subtile_q[2] != 0x0000) {
                 //printf("Q2: ");
                 heap = load_map("scotland_roads.map", x_in,   y_in+1, z_in, (int32_t)xo-tile_size, (int32_t)yo, st.subtile_q[2], rot, tile_size);
                 heap_total += heap;
-                printf("%d ", heap);
-            }
-            if(st.subtile_q[3] != 0x0000) {
-                //printf("Q3: ");
-                heap = load_map("scotland_roads.map", x_in+1, y_in+1, z_in, (int32_t)xo,           (int32_t)yo, st.subtile_q[3], rot, tile_size);
+                //printf("%d ", heap);
+            }*/
+            /*if(st.subtile_q[3] != 0x0000) {
+                mm_view.subtile = st.subtile_q[3];
+                heap = load_map_tile(&fbh, &mm_header, &mm_xyz, &mm_view, &mm_arena);
                 heap_total += heap;
-                printf("%d ", heap);
-            }
-            //printf("%d\n", heap_total);
-            printf("\n");
+            }*/
+
+            mm_view.subtile = 0xffff;
+            load_map_tile(&fbh, &mm_header, &mm_tile, &mm_xyz, &mm_view, &mm_arena);
+            printf("%d, %d, %d\n", mm_xyz.x, mm_xyz.y, mm_xyz.z);
+            arena_free(&mm_arena);
 
             uint16_t compass_len = 32;
             uint16_t border = 3;
@@ -230,10 +240,7 @@ int main(int argc, char *argv[]) {
 
             hagl_fill_circle(compass_x, compass_y, compass_len+2, hagl_color(0,0,0));
             hagl_draw_circle(compass_x, compass_y, compass_len+2, hagl_color(255,255,255));
-
             draw_varthick_line(compass_x, compass_y, compass_x-(compass_len-1)*sin(-rot), compass_y-(compass_len-1)*cos(-rot), compass_lw, hagl_color(255,0,0));
-            //draw_varthick_line(compass_x, compass_y, compass_x, compass_y-compass_len, compass_lw, hagl_color(0,255,0));
-
             hagl_fill_circle(compass_x, compass_y, 3, hagl_color(255,255,255));
         }
 

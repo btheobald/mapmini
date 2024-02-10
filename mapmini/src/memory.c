@@ -1,5 +1,6 @@
 #include "memory.h"
 #include <stdio.h>
+#include <stdint.h>
 
 volatile uint8_t reg[ARENA_DEFAULT_SIZE];
 
@@ -23,6 +24,5 @@ void* arena_malloc(arena_t * arena, size_t size) {
 size_t arena_free(arena_t * arena) { // Invalidates existing pointers
     size_t oldsize = arena->current;
     arena->current = 0;
-    //free(arena->region);
     return oldsize;
 }

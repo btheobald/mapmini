@@ -1,3 +1,6 @@
+#ifndef IO_POSIX_LAYER_GUARD
+#define IO_POSIX_LAYER_GUARD
+
 #include <stdint.h>
 #include <stdio.h>
 
@@ -28,3 +31,5 @@ static inline void file_seek_rel(fb_handler * fbh, uint32_t offset) {
 static inline void file_close(fb_handler * fbh) { 
     fclose(fbh->fp); 
 };
+
+#endif
